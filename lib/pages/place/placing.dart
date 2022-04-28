@@ -211,7 +211,8 @@ class _Placing extends ConsumerState<Placing> {
       );
     }
 
-    debugPrint(tmp.length.toString());
+    // debugPrint(tmp.length.toString());
+    // debugPrint(tmp.toString());
 
     _mapMarkers.clear();
     _mapMarkers.addAll(tmp);

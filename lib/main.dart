@@ -12,7 +12,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'B-SAM',
+      title: 'B-SAM 本部用',
       theme: ThemeData(
         primarySwatch: Colors.teal,
         appBarTheme: const AppBarTheme(
