@@ -23,41 +23,13 @@ class _Create extends State<Create> {
   final DateFormat dateFormat = DateFormat('y年M月d日');
   final DateFormat timeFormat = DateFormat('H時m分');
 
+  TextEditingController nameController = TextEditingController();
+  TextEditingController memoController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
   }
-
-  // _getUserInfo() {
-  //   final userId = ref.read(userIdProvider);
-  //   try {
-  //     http.get(
-  //       Uri.parse('https://sailing-assist-mie-api.herokuapp.com/user/$userId')
-  //     )
-  //       .then((res) {
-  //         if (res.statusCode != 200) {
-  //           return;
-  //         }
-
-  //         final bodyInfo = json.decode(res.body)['info'];
-  //         setState(() {
-  //           _userInfo = UserInfo(
-  //             userId: bodyInfo['user_id'],
-  //             loginId: bodyInfo['login_id'],
-  //             displayName: bodyInfo['display_name'],
-  //             groupId: bodyInfo['group_id'],
-  //             role: bodyInfo['role'],
-  //             deviceId: bodyInfo['device_id'],
-  //             sailNum: bodyInfo['sail_num'],
-  //             courseLimit: bodyInfo['course_limit'].toDouble(),
-  //             imageUrl: bodyInfo['image_url'],
-  //             note: bodyInfo['note']
-  //           );
-  //           _ready = true;
-  //         });
-  //       });
-  //   } catch (_) {}
-  // }
 
   _handlerName(String name) {
     setState(() {
@@ -125,6 +97,9 @@ class _Create extends State<Create> {
             return;
           }
 
+          nameController.clear();
+          memoController.clear();
+
           setState(() {
             _message = 'レースを登録しました。';
             _name = '';
@@ -164,7 +139,8 @@ class _Create extends State<Create> {
               ),
               TextField(
                 style: const TextStyle(fontSize: 20),
-                onChanged: _handlerName
+                onChanged: _handlerName,
+                controller: nameController
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20, bottom: 20),
@@ -250,7 +226,8 @@ class _Create extends State<Create> {
               ),
               TextField(
                 style: const TextStyle(fontSize: 20),
-                onChanged: _handlerMemo
+                onChanged: _handlerMemo,
+                controller: memoController
               ),
               Container(
                 margin: const EdgeInsets.only(top: 40),

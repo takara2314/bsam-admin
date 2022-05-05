@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:sailing_assist_mie_admin/pages/place/placing.dart';
+import 'package:sailing_assist_mie_admin/pages/manage/manage.dart';
 
 class Select extends StatefulWidget {
   const Select({Key? key}) : super(key: key);
@@ -197,7 +197,7 @@ class _RaceCard extends StatelessWidget {
                       onPressed: () async {
                         await Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => Placing(raceId: id, raceName: name),
+                            builder: (context) => Manage(raceId: id, raceName: name),
                           )
                         );
                         getRaces();
