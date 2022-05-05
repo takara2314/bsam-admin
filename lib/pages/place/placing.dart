@@ -219,11 +219,7 @@ class _Placing extends ConsumerState<Placing> {
   }
 
   _availableCheck(dynamic body) {
-    // debugPrint('\n');
-    // debugPrint(body.toString());
-    // debugPrint(body.containsKey('point_a') ? "はい" : "いいえ");
-    // debugPrint('\n');
-    if (body.containsKey('point_a') && body.containsKey('point_b') && body.containsKey('point_c')) {
+    if (!body.containsKey('next')) {
       if (body['point_a']['device_id'] != '') {
         setState(() {
           _readyPointA = true;

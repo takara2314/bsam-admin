@@ -30,6 +30,19 @@ class App extends StatelessWidget {
         textTheme: const TextTheme(
           bodyMedium: TextStyle(fontSize: 18),
         ),
+        inputDecorationTheme: const InputDecorationTheme(
+          hintStyle: TextStyle(color: Color.fromRGBO(137, 201, 223, 1)),
+          filled: true,
+          fillColor: Color.fromRGBO(209, 238, 248, 1),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Colors.transparent)
+          ),
+          contentPadding: EdgeInsets.only(top: 5, bottom: 5, left: 15, right: 15)
+        ),
         backgroundColor: const Color.fromRGBO(229, 229, 229, 1)
       ),
       home: const Home()

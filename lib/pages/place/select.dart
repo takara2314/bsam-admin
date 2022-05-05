@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:sailing_assist_mie_admin/pages/place/placing.dart';
 
 class Select extends StatefulWidget {
@@ -13,6 +14,8 @@ class Select extends StatefulWidget {
 
 class _Select extends State<Select> {
   List<dynamic> races = [];
+
+  bool _ready = false;
 
   @override
   void initState() {
@@ -37,6 +40,7 @@ class _Select extends State<Select> {
           }
           setState(() {
             races = body['races'];
+            _ready = true;
           });
         });
     } catch (_) {}
@@ -53,25 +57,42 @@ class _Select extends State<Select> {
         )
       ),
       body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [
-              for (var race in races) Container(
-                margin: const EdgeInsets.only(bottom: 15),
-                child: _RaceCard(
-                  id: race['id'],
-                  name: race['name'],
-                  startAt: DateTime.parse(race['start_at']),
-                  endAt: DateTime.parse(race['end_at']),
-                  memo: race['memo'],
-                )
+        child:
+          (_ready)
+          ? Container(
+              child: Column(
+                children: [
+                  for (var race in races) Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    child: _RaceCard(
+                      id: race['id'],
+                      name: race['name'],
+                      startAt: DateTime.parse(race['start_at']),
+                      endAt: DateTime.parse(race['end_at']),
+                      memo: race['memo'],
+                    )
+                  )
+                ],
+                crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              margin: const EdgeInsets.only(top: 10, bottom: 10),
+              padding: const EdgeInsets.all(25)
+            )
+          : Padding(
+              padding: const EdgeInsets.only(top: 200),
+              child: Column(
+                children: const [
+                  SpinKitWave(
+                    color: Color.fromRGBO(255, 84, 79, 1),
+                    size: 80.0,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: Text('レース情報を読み込んでいます…')
+                  )
+                ]
               )
-            ],
-            crossAxisAlignment: CrossAxisAlignment.start,
-          ),
-          margin: const EdgeInsets.only(top: 10, bottom: 10),
-          padding: const EdgeInsets.all(25)
-        )
+            )
       )
     );
   }
