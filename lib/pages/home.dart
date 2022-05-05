@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:sailing_assist_mie_admin/providers.dart';
 import 'package:sailing_assist_mie_admin/pages/place/select.dart' as place;
+import 'package:sailing_assist_mie_admin/pages/create.dart' as race;
 
 class Home extends ConsumerStatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -245,11 +246,11 @@ class _Home extends ConsumerState<Home> {
                               )
                             ),
                             onPressed: () {
-                              // Navigator.of(context).push(
-                              //   MaterialPageRoute(
-                              //     builder: (context) => const Create(),
-                              //   )
-                              // );
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const race.Create(),
+                                )
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               primary: const Color.fromRGBO(0, 98, 104, 1),

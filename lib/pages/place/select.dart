@@ -35,6 +35,10 @@ class _Select extends State<Select> {
           }
           final body = json.decode(res.body);
 
+          body['races'].sort((a, b){
+            return DateTime.parse(a['start_at']).compareTo(DateTime.parse(b['start_at']));
+          });
+
           if (!mounted) {
             return;
           }
@@ -201,8 +205,9 @@ class _RaceCard extends StatelessWidget {
               ]
             )
           ),
-          Padding(
+          Container(
             padding: const EdgeInsets.only(left: 14, right: 14, bottom: 14),
+            alignment: Alignment.topLeft,
             child: Text(
               memo ?? '',
               style: const TextStyle(
