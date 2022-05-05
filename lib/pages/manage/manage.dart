@@ -126,14 +126,6 @@ class _Manage extends State<Manage> {
         })
       )
         .then((res) {
-          debugPrint(json.encode({
-          'name': _name,
-          'start_at': _startAt.toString(),
-          'end_at': _endAt.toString(),
-          'memo': _memo,
-          'is_holding': _isHolding
-        }));
-          debugPrint(res.body.toString());
           if (res.statusCode != 200) {
             setState(() {
               _message = 'サーバーエラーが発生しました。';
