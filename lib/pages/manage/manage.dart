@@ -58,8 +58,8 @@ class _Manage extends State<Manage> {
           setState(() {
             _name = body['race']['name'];
             _memo = body['race']['memo'] ?? '';
-            _startAt = DateTime.parse(body['race']['start_at']);
-            _endAt = DateTime.parse(body['race']['end_at']);
+            _startAt = DateTime.parse(body['race']['start_at']).toLocal();
+            _endAt = DateTime.parse(body['race']['end_at']).toLocal();
             _isHolding = body['race']['is_holding'];
             _ready = true;
           });

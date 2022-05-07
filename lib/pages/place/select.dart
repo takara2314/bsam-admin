@@ -75,8 +75,8 @@ class _Select extends State<Select> {
                     child: _RaceCard(
                       id: race['id'],
                       name: race['name'],
-                      startAt: DateTime.parse(race['start_at']),
-                      endAt: DateTime.parse(race['end_at']),
+                      startAt: DateTime.parse(race['start_at']).toLocal(),
+                      endAt: DateTime.parse(race['end_at']).toLocal(),
                       memo: race['memo'],
                       getRaces: _getRaces
                     )
