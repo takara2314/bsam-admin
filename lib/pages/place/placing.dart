@@ -7,7 +7,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter_compass/flutter_compass.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
@@ -58,6 +57,9 @@ class _Placing extends ConsumerState<Placing> {
   void initState() {
     super.initState();
 
+    // Screen lock
+    Wakelock.enable();
+
     _getPosition(null);
     _timer = Timer.periodic(
       const Duration(seconds: 5),
@@ -85,6 +87,7 @@ class _Placing extends ConsumerState<Placing> {
   void dispose() {
     _timer.cancel();
     _channel.sink.close(status.goingAway);
+    Wakelock.disable();
     super.dispose();
   }
 
