@@ -62,7 +62,7 @@ class _Placing extends ConsumerState<Placing> {
 
     _getPosition(null);
     _timer = Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 5 * 60),
       _getPosition
     );
 
