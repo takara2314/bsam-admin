@@ -1,4 +1,4 @@
-name: sailing_assist_mie_admin
+name: bsam_admin
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.16.2 <3.0.0"
+  sdk: ">=2.17.6 <3.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -34,7 +34,6 @@ dependencies:
   http: ^0.13.4
   web_socket_channel: ^2.1.0
   flutter_riverpod: ^1.0.3
-  flutter_compass: ^0.7.0
   google_maps_flutter: ^2.1.3
   geolocator: ^8.2.0
   wakelock: ^0.6.1
@@ -60,7 +59,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^1.0.0
+  flutter_lints: ^2.0.0
 
 flutter_icons:
   android: "launcher_icon"
@@ -70,7 +69,7 @@ flutter_icons:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-# The following section is specific to Flutter.
+# The following section is specific to Flutter packages.
 flutter:
 
   # The following line ensures that the Material Icons font is
@@ -83,7 +82,7 @@ flutter:
     - images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
+  # https://flutter.dev/assets-and-images/#resolution-aware
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
