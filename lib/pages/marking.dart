@@ -12,9 +12,10 @@ import 'package:wakelock/wakelock.dart';
 import 'package:bsam_admin/providers.dart';
 
 class Marking extends ConsumerStatefulWidget {
-  const Marking({Key? key, required this.raceId}) : super(key: key);
+  const Marking({Key? key, required this.raceId, required this.markNo}) : super(key: key);
 
   final String raceId;
+  final int markNo;
 
   @override
   ConsumerState<Marking> createState() => _Marking();
@@ -75,7 +76,8 @@ class _Marking extends ConsumerState<Marking> {
     try {
       _channel.sink.add(json.encode({
         'type': 'auth',
-        'token': jwt
+        'token': jwt,
+        'mark_no': widget.markNo
       }));
     } catch (_) {}
   }
@@ -119,20 +121,50 @@ class _Marking extends ConsumerState<Marking> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => Navigator.of(context).pop()
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (_) {
+                return AlertDialog(
+                  title: const Text("本当に戻りますか？"),
+                  content: const Text("レースの真っ最中です。前の画面に戻るとレースを中断することになります。"),
+                  actions: <Widget>[
+                    // ボタン領域
+                    TextButton(
+                      child: const Text("いいえ"),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    TextButton(
+                      child: const Text("はい"),
+                      onPressed: () {
+                        int count = 0;
+                        Navigator.popUntil(context, (_) => count++ >= 2);
+                      }
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         )
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: const [
-            Text(
+          children: [
+            const Text(
               '送信中です',
               style: TextStyle(
                 fontSize: 28
               )
-            )
+            ),
+            Text(
+              '緯度: $_lat / 経度: $_lng'
+            ),
+            Text(
+              '精度: $_accuracy m'
+            ),
           ]
         )
       )

@@ -92,12 +92,36 @@ class _Home extends ConsumerState<Home> {
             ),
             ElevatedButton(
               child: const Text(
-                'マークをおく'
+                '上マークをおく'
               ),
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => Marking(raceId: raceId),
+                    builder: (context) => Marking(raceId: raceId, markNo: 1),
+                  )
+                );
+              }
+            ),
+            ElevatedButton(
+              child: const Text(
+                'サイドマークをおく'
+              ),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => Marking(raceId: raceId, markNo: 2),
+                  )
+                );
+              }
+            ),
+            ElevatedButton(
+              child: const Text(
+                '下マークをおく'
+              ),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => Marking(raceId: raceId, markNo: 3),
                   )
                 );
               }
