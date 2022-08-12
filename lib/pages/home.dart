@@ -51,12 +51,6 @@ class _Home extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
-
-    final userId = ref.watch(userIdProvider);
-    final jwt = ref.watch(jwtProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -97,7 +91,7 @@ class _Home extends ConsumerState<Home> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => Marking(raceId: raceId, markNo: 1),
+                    builder: (context) => const Marking(raceId: raceId, markNo: 1),
                   )
                 );
               }
@@ -109,7 +103,7 @@ class _Home extends ConsumerState<Home> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => Marking(raceId: raceId, markNo: 2),
+                    builder: (context) => const Marking(raceId: raceId, markNo: 2),
                   )
                 );
               }
@@ -121,7 +115,7 @@ class _Home extends ConsumerState<Home> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => Marking(raceId: raceId, markNo: 3),
+                    builder: (context) => const Marking(raceId: raceId, markNo: 3),
                   )
                 );
               }

@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'package:bsam_admin/providers.dart';
@@ -24,10 +25,16 @@ class Marking extends ConsumerStatefulWidget {
 class _Marking extends ConsumerState<Marking> {
   late WebSocketChannel _channel;
   late Timer _timerSendPos;
+  final Completer<GoogleMapController> _controller = Completer();
+  final Set<Marker> _mapMarkers = <Marker>{};
 
   double _lat = 0.0;
   double _lng = 0.0;
   double _accuracy = 0.0;
+
+  bool _manual = false;
+  double _latMap = 0.0;
+  double _lngMap = 0.0;
 
   @override
   void initState() {
@@ -104,7 +111,10 @@ class _Marking extends ConsumerState<Marking> {
   }
 
   _sendPosition(Timer? timer) async {
-    await _getPosition();
+    if (!_manual) {
+      await _getPosition();
+      _updateMapPosition();
+    }
 
     try {
       _channel.sink.add(json.encode({
@@ -115,8 +125,48 @@ class _Marking extends ConsumerState<Marking> {
     } catch (_) {}
   }
 
+  _updateMapPosition() async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(_lat, _lng),
+          zoom: 11.7
+        )
+      )
+    );
+  }
+
+  _handleMapCreated(GoogleMapController controller) {
+    _controller.complete(controller);
+  }
+
+  _handleMapMove(CameraPosition position) {
+    setState(() {
+      _latMap = position.target.latitude;
+      _lngMap = position.target.longitude;
+    });
+  }
+
+  _changeToManual() {
+    setState(() {
+      _manual = true;
+    });
+  }
+
+  _changeToAuto() {
+    setState(() {
+      _manual = false;
+      _lat = _latMap;
+      _lng = _lngMap;
+      _accuracy = 0.0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -165,6 +215,29 @@ class _Marking extends ConsumerState<Marking> {
             Text(
               '精度: $_accuracy m'
             ),
+            SizedBox(
+              width: width,
+              height: 300,
+              child: GoogleMap(
+                mapType: MapType.satellite,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: false,
+                markers: _mapMarkers,
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(_lat, _lng),
+                  zoom: 11.7
+                ),
+                onMapCreated: _handleMapCreated,
+                onCameraMove: _handleMapMove
+              )
+            ),
+            ElevatedButton(
+              onPressed: !_manual ? _changeToManual : _changeToAuto,
+              child: Text(
+                !_manual ? '真ん中をマークの位置に固定する' : '現在位置をマークにする'
+              )
+            )
           ]
         )
       )
