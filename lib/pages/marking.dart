@@ -246,7 +246,7 @@ class _Marking extends ConsumerState<Marking> {
                 style: Theme.of(context).textTheme.headline3
               ),
               Text(
-                '$_accuracy m'
+                !_manual ? '$_accuracy m' : '---'
               ),
               Container(
                 width: width,
@@ -281,7 +281,7 @@ class _Marking extends ConsumerState<Marking> {
                       )
                     ),
                     Align(
-                      alignment: Alignment.bottomRight,
+                      alignment: const Alignment(0.8, 0.9),
                       child: Visibility(
                         visible: !_autoMoveMap,
                         child: ElevatedButton(
