@@ -36,6 +36,8 @@ class _Marking extends ConsumerState<Marking> {
   double _latMap = 0.0;
   double _lngMap = 0.0;
 
+  bool _autoMoveMap = true;
+
   @override
   void initState() {
     super.initState();
@@ -126,12 +128,16 @@ class _Marking extends ConsumerState<Marking> {
   }
 
   _updateMapPosition() async {
+    if (!_autoMoveMap || !mounted) {
+      return;
+    }
+
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: LatLng(_lat, _lng),
-          zoom: 11.7
+          zoom: 18
         )
       )
     );
@@ -145,21 +151,23 @@ class _Marking extends ConsumerState<Marking> {
     setState(() {
       _latMap = position.target.latitude;
       _lngMap = position.target.longitude;
+      _autoMoveMap = false;
     });
   }
 
   _changeToManual() {
     setState(() {
       _manual = true;
+      _lat = _latMap;
+      _lng = _lngMap;
+      _accuracy = 0.0;
     });
   }
 
   _changeToAuto() {
     setState(() {
       _manual = false;
-      _lat = _latMap;
-      _lng = _lngMap;
-      _accuracy = 0.0;
+      _autoMoveMap = true;
     });
   }
 
@@ -199,48 +207,126 @@ class _Marking extends ConsumerState<Marking> {
         )
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(
-              '送信中です',
-              style: TextStyle(
-                fontSize: 28
+        child: SizedBox(
+          height: 650,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Column(
+                  children: [
+                    Text(
+                      'マーク ${widget.markNo}',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontWeight: FontWeight.bold
+                      )
+                    ),
+                    Text(
+                      '送信中です',
+                      style: TextStyle(
+                        fontSize: 36,
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold
+                      )
+                    )
+                  ],
+                )
+              ),
+              Text(
+                !_manual ? '緯度 / 経度' : '緯度 / 経度 （手動設定）',
+                style: Theme.of(context).textTheme.headline3
+              ),
+              Text(
+                '${_lat.toStringAsFixed(6)} / ${_lng.toStringAsFixed(6)}'
+              ),
+              Text(
+                '位置情報の精度',
+                style: Theme.of(context).textTheme.headline3
+              ),
+              Text(
+                '$_accuracy m'
+              ),
+              Container(
+                width: width,
+                height: 300,
+                margin: const EdgeInsets.only(top: 20, bottom: 20),
+                child: Stack(
+                  children: [
+                    GoogleMap(
+                      mapType: MapType.satellite,
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: false,
+                      zoomControlsEnabled: false,
+                      markers: _mapMarkers,
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(_lat, _lng),
+                        zoom: 18
+                      ),
+                      onMapCreated: _handleMapCreated,
+                      onCameraMove: _handleMapMove
+                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: Opacity(
+                          opacity: 0.75,
+                          child: CustomPaint(
+                            painter: MapCrossPainter(),
+                          )
+                        )
+                      )
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Visibility(
+                        visible: !_autoMoveMap,
+                        child: ElevatedButton(
+                          onPressed: _changeToManual,
+                          child: const Text('ここをマークにする')
+                        )
+                      )
+                    )
+                  ]
+                )
+              ),
+              Visibility(
+                visible: _manual,
+                child: ElevatedButton(
+                  onPressed: _changeToAuto,
+                  child: const Text('現在位置をマークにする')
+                )
+              ),
+              Visibility(
+                visible: _autoMoveMap,
+                child: const Text('自動移動有効')
               )
-            ),
-            Text(
-              '緯度: $_lat / 経度: $_lng'
-            ),
-            Text(
-              '精度: $_accuracy m'
-            ),
-            SizedBox(
-              width: width,
-              height: 300,
-              child: GoogleMap(
-                mapType: MapType.satellite,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-                markers: _mapMarkers,
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(_lat, _lng),
-                  zoom: 11.7
-                ),
-                onMapCreated: _handleMapCreated,
-                onCameraMove: _handleMapMove
-              )
-            ),
-            ElevatedButton(
-              onPressed: !_manual ? _changeToManual : _changeToAuto,
-              child: Text(
-                !_manual ? '真ん中をマークの位置に固定する' : '現在位置をマークにする'
-              )
-            )
-          ]
+            ]
+          )
         )
       )
     );
+  }
+}
+
+class MapCrossPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 4;
+
+    canvas.drawLine(
+        Offset(size.width / 2, 0), Offset(size.width / 2, size.height), paint);
+    canvas.drawLine(
+        Offset(0, size.height / 2), Offset(size.width, size.height / 2), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }

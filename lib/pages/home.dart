@@ -55,10 +55,7 @@ class _Home extends ConsumerState<Home> {
       appBar: AppBar(
         title: Text(
           'ゴーリキテスト',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold
-          )
+          style: Theme.of(context).textTheme.headline1
         ),
         centerTitle: true
       ),
