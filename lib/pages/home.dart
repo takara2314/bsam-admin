@@ -54,7 +54,7 @@ class _Home extends ConsumerState<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'ゴーリキテスト',
+          'ゴーリキマリンビレッジ',
           style: Theme.of(context).textTheme.headline1
         ),
         centerTitle: true
