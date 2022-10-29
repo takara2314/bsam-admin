@@ -1,9 +1,12 @@
+// TODO: こっちからスタートできるようにする
+
 import 'package:flutter/material.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bsam_admin/pages/marking.dart';
+import 'package:bsam_admin/pages/manage.dart';
 import 'package:bsam_admin/providers.dart';
 
 class Home extends ConsumerStatefulWidget {
@@ -120,6 +123,21 @@ class _Home extends ConsumerState<Home> {
                 );
               }
             ),
+            Padding(
+              padding: EdgeInsets.only(top: 30),
+              child: ElevatedButton(
+                child: const Text(
+                  'レースを管理する'
+                ),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const Manage(raceId: raceId),
+                    )
+                  );
+                }
+              ),
+            )
           ]
         )
       )
