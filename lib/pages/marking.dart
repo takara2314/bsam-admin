@@ -175,136 +175,118 @@ class _Marking extends ConsumerState<Marking> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (_) {
-                return AlertDialog(
-                  title: const Text("本当に戻りますか？"),
-                  content: const Text("レースの真っ最中です。前の画面に戻るとレースを中断することになります。"),
-                  actions: <Widget>[
-                    // ボタン領域
-                    TextButton(
-                      child: const Text("いいえ"),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    TextButton(
-                      child: const Text("はい"),
-                      onPressed: () {
-                        int count = 0;
-                        Navigator.popUntil(context, (_) => count++ >= 2);
-                      }
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        )
-      ),
-      body: Center(
-        child: SizedBox(
-          height: 650,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      'マーク ${widget.markNo}',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontWeight: FontWeight.bold
-                      )
-                    ),
-                    Text(
-                      '送信中です',
-                      style: TextStyle(
-                        fontSize: 36,
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold
-                      )
-                    )
-                  ],
-                )
-              ),
-              Text(
-                !_manual ? '緯度 / 経度' : '緯度 / 経度 （手動設定）',
-                style: Theme.of(context).textTheme.headline3
-              ),
-              Text(
-                '${_lat.toStringAsFixed(6)} / ${_lng.toStringAsFixed(6)}'
-              ),
-              Text(
-                '位置情報の精度',
-                style: Theme.of(context).textTheme.headline3
-              ),
-              Text(
-                !_manual ? '$_accuracy m' : '---'
-              ),
-              Container(
-                width: width,
-                height: 300,
-                margin: const EdgeInsets.only(top: 20, bottom: 20),
-                child: Stack(
-                  children: [
-                    GoogleMap(
-                      mapType: MapType.satellite,
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: false,
-                      zoomControlsEnabled: false,
-                      markers: _mapMarkers,
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(_lat, _lng),
-                        zoom: 18
+    return WillPopScope(
+      onWillPop: () async {
+        isReturnDialog(context);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () => isReturnDialog(context)
+          )
+        ),
+        body: Center(
+          child: SizedBox(
+            height: 650,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Column(
+                    children: [
+                      Text(
+                        'マーク ${widget.markNo}',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.tertiary,
+                          fontWeight: FontWeight.bold
+                        )
                       ),
-                      onMapCreated: _handleMapCreated,
-                      onCameraMove: _handleMapMove
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: Opacity(
-                          opacity: 0.75,
-                          child: CustomPaint(
-                            painter: MapCrossPainter(),
+                      Text(
+                        '送信中です',
+                        style: TextStyle(
+                          fontSize: 36,
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold
+                        )
+                      )
+                    ],
+                  )
+                ),
+                Text(
+                  !_manual ? '緯度 / 経度' : '緯度 / 経度 （手動設定）',
+                  style: Theme.of(context).textTheme.headline3
+                ),
+                Text(
+                  '${_lat.toStringAsFixed(6)} / ${_lng.toStringAsFixed(6)}'
+                ),
+                Text(
+                  '位置情報の精度',
+                  style: Theme.of(context).textTheme.headline3
+                ),
+                Text(
+                  !_manual ? '$_accuracy m' : '---'
+                ),
+                Container(
+                  width: width,
+                  height: 300,
+                  margin: const EdgeInsets.only(top: 20, bottom: 20),
+                  child: Stack(
+                    children: [
+                      GoogleMap(
+                        mapType: MapType.satellite,
+                        myLocationEnabled: true,
+                        myLocationButtonEnabled: false,
+                        zoomControlsEnabled: false,
+                        markers: _mapMarkers,
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(_lat, _lng),
+                          zoom: 18
+                        ),
+                        onMapCreated: _handleMapCreated,
+                        onCameraMove: _handleMapMove
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: Opacity(
+                            opacity: 0.75,
+                            child: CustomPaint(
+                              painter: MapCrossPainter(),
+                            )
+                          )
+                        )
+                      ),
+                      Align(
+                        alignment: const Alignment(0.8, 0.9),
+                        child: Visibility(
+                          visible: !_autoMoveMap,
+                          child: ElevatedButton(
+                            onPressed: _changeToManual,
+                            child: const Text('ここをマークにする')
                           )
                         )
                       )
-                    ),
-                    Align(
-                      alignment: const Alignment(0.8, 0.9),
-                      child: Visibility(
-                        visible: !_autoMoveMap,
-                        child: ElevatedButton(
-                          onPressed: _changeToManual,
-                          child: const Text('ここをマークにする')
-                        )
-                      )
-                    )
-                  ]
+                    ]
+                  )
+                ),
+                Visibility(
+                  visible: _manual,
+                  child: ElevatedButton(
+                    onPressed: _changeToAuto,
+                    child: const Text('現在位置をマークにする')
+                  )
+                ),
+                Visibility(
+                  visible: _autoMoveMap,
+                  child: const Text('自動移動有効')
                 )
-              ),
-              Visibility(
-                visible: _manual,
-                child: ElevatedButton(
-                  onPressed: _changeToAuto,
-                  child: const Text('現在位置をマークにする')
-                )
-              ),
-              Visibility(
-                visible: _autoMoveMap,
-                child: const Text('自動移動有効')
-              )
-            ]
+              ]
+            )
           )
         )
       )
@@ -329,4 +311,30 @@ class MapCrossPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
   }
+}
+
+void isReturnDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (_) {
+      return AlertDialog(
+        title: const Text("本当に戻りますか？"),
+        content: const Text("レースの真っ最中です。前の画面に戻るとレースを中断することになります。"),
+        actions: <Widget>[
+          // ボタン領域
+          TextButton(
+            child: const Text("いいえ"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text("はい"),
+            onPressed: () {
+              int count = 0;
+              Navigator.popUntil(context, (_) => count++ >= 2);
+            }
+          ),
+        ],
+      );
+    },
+  );
 }

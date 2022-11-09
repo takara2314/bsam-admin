@@ -90,6 +90,10 @@ class _Manage extends ConsumerState<Manage> {
 
   _receiveStartRace(dynamic msg) {
     // race status
+    if (!mounted){
+      return;
+    }
+
     setState(() {
       _started = msg['started'];
     });
@@ -97,6 +101,10 @@ class _Manage extends ConsumerState<Manage> {
 
   _receiveLive(LiveMsg msg) {
     // live data
+    if (!mounted){
+      return;
+    }
+
     setState(() {
       _athletes = msg.athletes!;
     });
@@ -154,31 +162,7 @@ class _Manage extends ConsumerState<Manage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (_) {
-                return AlertDialog(
-                  title: const Text("本当に戻りますか？"),
-                  content: const Text("レースの真っ最中です。前の画面に戻るとレースを中断することになります。"),
-                  actions: <Widget>[
-                    // ボタン領域
-                    TextButton(
-                      child: const Text("いいえ"),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    TextButton(
-                      child: const Text("はい"),
-                      onPressed: () {
-                        int count = 0;
-                        Navigator.popUntil(context, (_) => count++ >= 2);
-                      }
-                    ),
-                  ],
-                );
-              },
-            );
-          }
+          onPressed: () => Navigator.pop(context)
         )
       ),
       body: Center(
