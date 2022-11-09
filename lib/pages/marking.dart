@@ -92,8 +92,8 @@ class _Marking extends ConsumerState<Marking> {
   }
 
   _readWsMsg(dynamic msg) {
-    final body = json.decode(msg);
-    debugPrint(body.toString());
+    // final body = json.decode(msg);
+    // debugPrint(body.toString());
   }
 
   _getPosition() async {
