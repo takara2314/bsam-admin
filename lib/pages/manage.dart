@@ -251,7 +251,7 @@ class _Manage extends ConsumerState<Manage> {
                                                 Padding(
                                                   padding: const EdgeInsets.only(left: 20),
                                                   child: Text(
-                                                    '${marks[athlete.nextMarkNo!]![0]}マークの案内中',
+                                                    athlete.nextMarkNo != -1 ? '${marks[athlete.nextMarkNo!]![0]}マークの案内中' : '',
                                                     style: const TextStyle(
                                                       fontSize: 16
                                                     )
