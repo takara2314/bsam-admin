@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "sailing_assist_mie_admin" "\0"
+            VALUE "FileDescription", "bsam_admin" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "sailing_assist_mie_admin" "\0"
+            VALUE "InternalName", "bsam_admin" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "sailing_assist_mie_admin.exe" "\0"
-            VALUE "ProductName", "sailing_assist_mie_admin" "\0"
+            VALUE "OriginalFilename", "bsam_admin.exe" "\0"
+            VALUE "ProductName", "bsam_admin" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

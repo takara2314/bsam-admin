@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sailing_assist_mie_admin/pages/home.dart';
+import 'package:bsam_admin/pages/home.dart';
 
 void main() {
   runApp(const ProviderScope(child: App()));
@@ -12,38 +13,57 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'B-SAM 本部用',
+      title: 'B-SAM',
       theme: ThemeData(
-        primarySwatch: Colors.teal,
+        useMaterial3: true,
+        colorSchemeSeed: Colors.cyan,
         appBarTheme: const AppBarTheme(
-          titleTextStyle: TextStyle(
-            color: Colors.black,
-            fontSize: 20
-          ),
-          centerTitle: false,
-          iconTheme: IconThemeData(
-            color: Color.fromRGBO(100, 100, 100, 1)
-          ),
-          elevation: 0,
-          backgroundColor: Colors.transparent
+          systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
         ),
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(fontSize: 18),
-        ),
-        inputDecorationTheme: const InputDecorationTheme(
-          hintStyle: TextStyle(color: Color.fromRGBO(137, 201, 223, 1)),
-          filled: true,
-          fillColor: Color.fromRGBO(209, 238, 248, 1),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10))
+        textTheme: TextTheme(
+          headline1: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.transparent)
+          headline2: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.secondary,
           ),
-          contentPadding: EdgeInsets.only(top: 5, bottom: 5, left: 15, right: 15)
-        ),
-        backgroundColor: const Color.fromRGBO(229, 229, 229, 1)
+          headline3: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          headline4: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold
+          ),
+          headline5: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold
+          ),
+          headline6: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold
+          ),
+          bodyText1: const TextStyle(
+            fontSize: 18
+          ),
+          bodyText2: const TextStyle(
+            fontSize: 16
+          ),
+          button: const TextStyle(
+            fontSize: 14
+          ),
+          caption: const TextStyle(
+            fontSize: 12
+          ),
+          overline: const TextStyle(
+            fontSize: 10
+          )
+        )
       ),
       home: const Home()
     );
