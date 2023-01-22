@@ -13,9 +13,15 @@ import 'package:wakelock/wakelock.dart';
 import 'package:bsam_admin/providers.dart';
 
 class Marking extends ConsumerStatefulWidget {
-  const Marking({Key? key, required this.raceId, required this.markNo}) : super(key: key);
+  const Marking({
+    Key? key,
+    required this.assocId,
+    required this.userId,
+    required this.markNo
+  }) : super(key: key);
 
-  final String raceId;
+  final String assocId;
+  final String userId;
   final int markNo;
 
   @override
@@ -67,8 +73,11 @@ class _Marking extends ConsumerState<Marking> {
       return;
     }
 
+    // Get server url
+    final serverUrl = ref.read(serverUrlProvider);
+
     _channel = IOWebSocketChannel.connect(
-      Uri.parse('wss://sailing-assist-mie-api.herokuapp.com/v2/racing/${widget.raceId}'),
+      Uri.parse('$serverUrl/racing/${widget.assocId}'),
       pingInterval: const Duration(seconds: 1)
     );
 
@@ -86,6 +95,8 @@ class _Marking extends ConsumerState<Marking> {
       _channel.sink.add(json.encode({
         'type': 'auth',
         'token': jwt,
+        'user_id': widget.userId,
+        'role': 'mark',
         'mark_no': widget.markNo
       }));
     } catch (_) {}

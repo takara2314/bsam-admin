@@ -6,7 +6,6 @@ class Athlete {
   double? heading;
   double? headingFixing;
   double? compassDeg;
-  int? markNo;
   int? nextMarkNo;
   double? courseLimit;
 
@@ -18,7 +17,6 @@ class Athlete {
     this.heading,
     this.headingFixing,
     this.compassDeg,
-    this.markNo,
     this.nextMarkNo,
     this.courseLimit
   });
@@ -31,7 +29,6 @@ class Athlete {
     heading = json['heading'].toDouble();
     headingFixing = json['heading_fixing'].toDouble();
     compassDeg = json['compass_degree'].toDouble();
-    markNo = json['mark_no'];
     nextMarkNo = json['next_mark_no'];
     courseLimit = json['course_limit'].toDouble();
   }

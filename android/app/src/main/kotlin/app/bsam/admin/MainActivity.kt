@@ -1,4 +1,4 @@
-package com.example.bsam_admin
+package app.bsam.admin
 
 import io.flutter.embedding.android.FlutterActivity
 
