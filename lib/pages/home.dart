@@ -1,12 +1,13 @@
-// TODO: こっちからスタートできるようにする
-
 import 'package:flutter/material.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 import 'package:bsam_admin/pages/marking.dart';
 import 'package:bsam_admin/pages/manage.dart';
+import 'package:bsam_admin/models/user.dart';
 import 'package:bsam_admin/providers.dart';
 
 class Home extends ConsumerStatefulWidget {
@@ -17,15 +18,13 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _Home extends ConsumerState<Home> {
-  static const jwts = {
-    'a91bb4bf-1f2b-4316-9c64-1392a89a59f1': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTc0MzEyOTQsIm1hcmtfbm8iOi0xLCJyb2xlIjoibWFyayIsInVzZXJfaWQiOiJhOTFiYjRiZi0xZjJiLTQzMTYtOWM2NC0xMzkyYTg5YTU5ZjEifQ.9koy0GFTBA0cxct1AAUG6fTSkEff8EwIdILBdJCXRbw',
-    'd09bd6b4-56e9-464d-952c-a7fbdf980d3a': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTc0MzEyOTQsIm1hcmtfbm8iOi0xLCJyb2xlIjoibWFyayIsInVzZXJfaWQiOiJkMDliZDZiNC01NmU5LTQ2NGQtOTUyYy1hN2ZiZGY5ODBkM2EifQ.xg0wL788QR4ftdkriubof3hjN5EbVB81SwoDTG5t7WU',
-    '0756bc89-71f8-440b-b680-57513d16dd29': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTc0MzEyOTQsIm1hcmtfbm8iOi0xLCJyb2xlIjoibWFyayIsInVzZXJfaWQiOiIwNzU2YmM4OS03MWY4LTQ0MGItYjY4MC01NzUxM2QxNmRkMjkifQ.2QXYCN8c30lWnhkgVH6WdUYP79GcpZ6NIrkczJLyfjY',
-  };
+  static final users = <User>[
+    User(displayName: '上マーク', id: 'mark1', markNo: 1),
+    User(displayName: 'サイドマーク', id: 'mark2', markNo: 2),
+    User(displayName: '下マーク', id: 'mark3', markNo: 3)
+  ];
 
-  static const raceId = '3ae8c214-eb72-481c-b110-8e8f32ecf02d';
-
-  String? _userName;
+  String? _assocId;
 
   @override
   void initState() {
@@ -37,18 +36,32 @@ class _Home extends ConsumerState<Home> {
       if (permLocation == PermissionStatus.denied) {
         permLocation = await Permission.location.request();
       }
+
+      _loadServerURL();
+      _loadAssocInfo();
     }();
   }
 
-  _changeUser(String? value) {
-    final userId = ref.read(userIdProvider.notifier);
+  _loadServerURL() {
+    final String? url = dotenv.maybeGet('BSAM_SERVER_URL');
+
+    final provider = ref.read(serverUrlProvider.notifier);
+    provider.state = url;
+  }
+
+  _loadAssocInfo() {
+    final String? token = dotenv.maybeGet('BSAM_SERVER_TOKEN');
+    Map<String, dynamic> payload = Jwt.parseJwt(token!);
+    final String? id = payload['association_id'];
+
+    final assocId = ref.read(assocIdProvider.notifier);
     final jwt = ref.read(jwtProvider.notifier);
 
-    userId.state = value;
-    jwt.state = jwts[value];
+    assocId.state = id;
+    jwt.state = token;
 
     setState(() {
-      _userName = value;
+      _assocId = id;
     });
   }
 
@@ -57,7 +70,7 @@ class _Home extends ConsumerState<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'ゴーリキマリンビレッジ',
+          'セーリング団体名',
           style: Theme.of(context).textTheme.headline1
         ),
         centerTitle: true
@@ -65,66 +78,25 @@ class _Home extends ConsumerState<Home> {
       body: Center(
         child: Column(
           children: <Widget>[
-            // const Text('ユーザー'),
-            // DropdownButton(
-            //   items: const [
-            //     DropdownMenuItem(
-            //       value: 'a91bb4bf-1f2b-4316-9c64-1392a89a59f1',
-            //       child: Text('マークA'),
-            //     ),
-            //     DropdownMenuItem(
-            //       value: 'd09bd6b4-56e9-464d-952c-a7fbdf980d3a',
-            //       child: Text('マークB'),
-            //     ),
-            //     DropdownMenuItem(
-            //       value: '0756bc89-71f8-440b-b680-57513d16dd29',
-            //       child: Text('マークC'),
-            //     ),
-            //   ],
-            //   onChanged: _changeUser,
-            //   value: _userName,
-            // ),
-            ElevatedButton(
-              child: const Text(
-                '上マークをおく'
+            for (final user in users)
+              ElevatedButton(
+                child: Text(
+                  '${user.displayName}をおく'
+                ),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => Marking(
+                        assocId: _assocId!,
+                        userId: user.id!,
+                        markNo: user.markNo!
+                      )
+                    )
+                  );
+                }
               ),
-              onPressed: () {
-                _changeUser('a91bb4bf-1f2b-4316-9c64-1392a89a59f1');
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const Marking(raceId: raceId, markNo: 1),
-                  )
-                );
-              }
-            ),
-            ElevatedButton(
-              child: const Text(
-                'サイドマークをおく'
-              ),
-              onPressed: () {
-                _changeUser('d09bd6b4-56e9-464d-952c-a7fbdf980d3a');
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const Marking(raceId: raceId, markNo: 2),
-                  )
-                );
-              }
-            ),
-            ElevatedButton(
-              child: const Text(
-                '下マークをおく'
-              ),
-              onPressed: () {
-                _changeUser('0756bc89-71f8-440b-b680-57513d16dd29');
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const Marking(raceId: raceId, markNo: 3),
-                  )
-                );
-              }
-            ),
             Padding(
-              padding: EdgeInsets.only(top: 30),
+              padding: const EdgeInsets.only(top: 30),
               child: ElevatedButton(
                 child: const Text(
                   'レースを管理する'
@@ -132,7 +104,7 @@ class _Home extends ConsumerState<Home> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const Manage(raceId: raceId),
+                      builder: (context) => Manage(assocId: _assocId!),
                     )
                   );
                 }

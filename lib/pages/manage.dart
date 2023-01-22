@@ -8,35 +8,19 @@ import 'package:web_socket_channel/status.dart' as status;
 
 import 'package:bsam_admin/models/athlete.dart';
 import 'package:bsam_admin/models/live_msg.dart';
+import 'package:bsam_admin/providers.dart';
+import 'package:bsam_admin/utils/random.dart';
 
 class Manage extends ConsumerStatefulWidget {
-  const Manage({Key? key, required this.raceId}) : super(key: key);
+  const Manage({Key? key, required this.assocId}) : super(key: key);
 
-  final String raceId;
+  final String assocId;
 
   @override
   ConsumerState<Manage> createState() => _Manage();
 }
 
 class _Manage extends ConsumerState<Manage> {
-  static const jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTkwODcxNTEsIm1hcmtfbm8iOi0xLCJyb2xlIjoibWFuYWdlIiwidXNlcl9pZCI6IjdkYTRlNjcwLTk5YmEtNGJhYi1iZDg0LTk3MzgwMjI5ODFiOSJ9.B0__b4LuwI_yXrPWeQuyHV6l1gVu6NnmSHNpJwcLQAc';
-
-  static const users = {
-    'e85c3e4d-21d8-4c42-be90-b79418419c40': '端末番号4',
-    '925aea83-44e0-4ff3-9ce6-84a1c5190532': '端末番号5',
-    '4aaee190-e8ef-4fb6-8ee9-510902b68cf4': '端末番号6',
-    'd6e367e6-c630-410f-bcc7-de02da21dd3a': '端末番号7',
-    'f3f4da8f-6ab0-4f0e-90a9-2689d72d2a4f': '端末番号8',
-    '23d96555-5ff0-4c5d-8b03-2f1db89141f1': '端末番号9',
-    'b0e968e9-8dd7-4e20-90a7-6c97834a4e88': '端末番号10',
-    '605ded0a-ed1f-488b-b0ce-4ccf257c7329': '端末番号11',
-    '0e9737f7-6d62-447f-ad00-bd36c4532729': '端末番号12',
-    '55072870-f00e-4ab9-bc6c-1710eef5b0a0': '端末番号13',
-    'a91bb4bf-1f2b-4316-9c64-1392a89a59f1': 'マーク1',
-    'd09bd6b4-56e9-464d-952c-a7fbdf980d3a': 'マーク2',
-    '0756bc89-71f8-440b-b680-57513d16dd29': 'マーク3'
-  };
-
   static const marks = {
     1: ['上', 'かみ'],
     2: ['サイド', 'さいど'],
@@ -66,8 +50,11 @@ class _Manage extends ConsumerState<Manage> {
       return;
     }
 
+    // Get server url
+    final serverUrl = ref.read(serverUrlProvider);
+
     _channel = IOWebSocketChannel.connect(
-      Uri.parse('wss://sailing-assist-mie-api.herokuapp.com/v2/racing/${widget.raceId}'),
+      Uri.parse('$serverUrl/racing/${widget.assocId}'),
       pingInterval: const Duration(seconds: 1)
     );
 
@@ -80,10 +67,14 @@ class _Manage extends ConsumerState<Manage> {
       }
     );
 
+    final token = ref.read(jwtProvider);
+
     try {
       _channel.sink.add(json.encode({
         'type': 'auth',
-        'token': jwt
+        'token': token,
+        'user_id': generateRandomStr(8),
+        'role': 'manager'
       }));
     } catch (_) {}
   }
@@ -140,15 +131,14 @@ class _Manage extends ConsumerState<Manage> {
   _forcePassed(String userId, int markNo) {
     int nextMarkNo = markNo % 3 + 1;
 
-    _setMarkNo(userId, markNo, nextMarkNo);
+    _setNextMarkNo(userId, nextMarkNo);
   }
 
-  _setMarkNo(String userId, int markNo, int nextMarkNo) {
+  _setNextMarkNo(String userId, int nextMarkNo) {
     try {
       _channel.sink.add(json.encode({
         'type': 'set_mark_no',
         'user_id': userId,
-        'mark_no': markNo,
         'next_mark_no': nextMarkNo
       }));
     } catch (_) {}
@@ -175,7 +165,7 @@ class _Manage extends ConsumerState<Manage> {
                 child: Column(
                   children: [
                     Text(
-                      'ゴーリキマリンビレッジ',
+                      'セーリング団体名',
                       style: TextStyle(
                         fontSize: 20,
                         color: Theme.of(context).colorScheme.tertiary,
@@ -225,7 +215,7 @@ class _Manage extends ConsumerState<Manage> {
                                             Row(
                                               children: [
                                                 Text(
-                                                  users[athlete.userId] ?? '不明',
+                                                  athlete.userId!,
                                                   style: TextStyle(
                                                     fontSize: 20,
                                                     color: Theme.of(context).colorScheme.tertiary,
