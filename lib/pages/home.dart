@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -67,50 +68,86 @@ class _Home extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'セーリング団体名',
-          style: Theme.of(context).textTheme.headline1
-        ),
-        centerTitle: true
-      ),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            for (final user in users)
-              ElevatedButton(
-                child: Text(
-                  '${user.displayName}をおく'
-                ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => Marking(
-                        assocId: _assocId!,
-                        userId: user.id!,
-                        markNo: user.markNo!
-                      )
-                    )
-                  );
-                }
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SvgPicture.asset(
+              'images/logo.svg',
+              semanticsLabel: 'logo',
+              width: 42,
+              height: 42
+            ),
+            Container(
+              width: width * 0.6,
+              padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 8),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(9999)
               ),
-            Padding(
-              padding: const EdgeInsets.only(top: 30),
-              child: ElevatedButton(
-                child: const Text(
-                  'レースを管理する'
-                ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => Manage(assocId: _assocId!),
-                    )
-                  );
-                }
-              ),
+              child: Text(
+                'セーリング団体名',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16
+                )
+              )
+            ),
+            IconButton(
+              icon: const Icon(Icons.settings),
+              iconSize: 32,
+              onPressed: () {}
             )
           ]
+        )
+      ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: <Widget>[
+             const Padding(
+                padding: EdgeInsets.only(top: 20, bottom: 10),
+                child: Text('テストレース2023')
+              ),
+              for (final user in users)
+                ElevatedButton(
+                  child: Text(
+                    '${user.displayName}をおく'
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => Marking(
+                          assocId: _assocId!,
+                          userId: user.id!,
+                          markNo: user.markNo!
+                        )
+                      )
+                    );
+                  }
+                ),
+              Padding(
+                padding: const EdgeInsets.only(top: 30),
+                child: ElevatedButton(
+                  child: const Text(
+                    'レースを管理する'
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => Manage(assocId: _assocId!),
+                      )
+                    );
+                  }
+                ),
+              )
+            ]
+          )
         )
       )
     );

@@ -112,7 +112,7 @@ class _Marking extends ConsumerState<Marking> {
       desiredAccuracy: LocationAccuracy.best,
     );
 
-    if (pos.accuracy > 15.0 || !mounted) {
+    if (pos.accuracy > 30.0 || !mounted) {
       return;
     }
 
