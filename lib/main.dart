@@ -17,54 +17,56 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'B-SAM',
+      title: 'B-SAM 本部用',
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.cyan,
+        scaffoldBackgroundColor: const Color(0xFFF2F2F2),
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+          backgroundColor: Colors.transparent,
         ),
         textTheme: TextTheme(
-          headline1: TextStyle(
+          displayLarge: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.primary
           ),
-          headline2: TextStyle(
+          displayMedium: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.secondary,
           ),
-          headline3: TextStyle(
+          displaySmall: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.tertiary,
           ),
-          headline4: const TextStyle(
+          headlineMedium: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold
           ),
-          headline5: const TextStyle(
+          headlineSmall: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold
           ),
-          headline6: const TextStyle(
+          titleLarge: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold
           ),
-          bodyText1: const TextStyle(
+          bodyLarge: const TextStyle(
             fontSize: 18
           ),
-          bodyText2: const TextStyle(
+          bodyMedium: const TextStyle(
             fontSize: 16
           ),
-          button: const TextStyle(
+          labelLarge: const TextStyle(
             fontSize: 14
           ),
-          caption: const TextStyle(
+          bodySmall: const TextStyle(
             fontSize: 12
           ),
-          overline: const TextStyle(
+          labelSmall: const TextStyle(
             fontSize: 10
           )
         )
