@@ -137,7 +137,7 @@ class _Manage extends ConsumerState<Manage> {
   _setNextMarkNo(String userId, int nextMarkNo) {
     try {
       _channel.sink.add(json.encode({
-        'type': 'set_mark_no',
+        'type': 'set_next_mark_no',
         'user_id': userId,
         'next_mark_no': nextMarkNo
       }));

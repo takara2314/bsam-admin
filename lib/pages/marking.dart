@@ -8,6 +8,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:battery_plus/battery_plus.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'package:bsam_admin/providers.dart';
@@ -30,9 +31,13 @@ class Marking extends ConsumerStatefulWidget {
 
 class _Marking extends ConsumerState<Marking> {
   late WebSocketChannel _channel;
+
   late Timer _timerSendPos;
+  late Timer _timerBattery;
+
   final Completer<GoogleMapController> _controller = Completer();
   final Set<Marker> _mapMarkers = <Marker>{};
+  final Battery battery = Battery();
 
   double _lat = 0.0;
   double _lng = 0.0;
@@ -55,6 +60,12 @@ class _Marking extends ConsumerState<Marking> {
     _timerSendPos = Timer.periodic(
       const Duration(seconds: 1),
       _sendPosition
+    );
+
+    _sendBattery(null);
+    _timerBattery = Timer.periodic(
+      const Duration(seconds: 10),
+      _sendBattery
     );
 
     _connectWs();
@@ -136,6 +147,21 @@ class _Marking extends ConsumerState<Marking> {
         'longitude': _lng
       }));
     } catch (_) {}
+  }
+
+  _sendBattery(Timer? timer) async {
+    final level = await _getBattery();
+
+    try {
+      _channel.sink.add(json.encode({
+        'type': 'battery',
+        'level': level
+      }));
+    } catch (_) {}
+  }
+
+  Future<int> _getBattery() async {
+    return await battery.batteryLevel;
   }
 
   _updateMapPosition() async {
