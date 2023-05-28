@@ -1,0 +1,36 @@
+name: Check and test the source code
+
+on:
+  push:
+    branches:
+      - main
+      - v4-develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: '1.34.0'
+
+      - name: Create dummy .env
+        run: deno run --allow-write=. .github/createDummyEnv.ts
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.10.0
+        with:
+          flutter-version: '3.10.2'
+
+      - name: Install packages
+        run: flutter pub get
+
+      - name: Lint
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
