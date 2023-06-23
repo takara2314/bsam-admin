@@ -152,23 +152,25 @@ class _Manage extends ConsumerState<Manage> {
     return Scaffold(
       appBar: const ManageAppBar(),
       body: SingleChildScrollView(
-        child: (_started == null
-          ? const Text('読み込み中')
-          : Column(
-              children: [
-                StartStopButton(
-                  started: _started!,
-                  startRace: _startRace
-                ),
-                AthletesArea(
-                  markNames: markNames,
-                  athletes: _athletes,
-                  forcePassed: _forcePassed
-                )
-              ]
+        child: Center(
+          child: (_started == null
+            ? const Text('読み込み中')
+            : Column(
+                children: [
+                  StartStopButton(
+                    started: _started!,
+                    startRace: _startRace
+                  ),
+                  AthletesArea(
+                    markNames: markNames,
+                    athletes: _athletes,
+                    forcePassed: _forcePassed
+                  )
+                ]
+              )
             )
-          )
         )
+      )
     );
   }
 }
