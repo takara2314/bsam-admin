@@ -1,3 +1,4 @@
+import 'package:bsam_admin/pages/manage/marks_area.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
@@ -7,6 +8,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 
 import 'package:bsam_admin/models/athlete.dart';
+import 'package:bsam_admin/models/mark.dart';
 import 'package:bsam_admin/models/live_msg.dart';
 import 'package:bsam_admin/providers.dart';
 import 'package:bsam_admin/pages/manage/app_bar.dart';
@@ -34,6 +36,7 @@ class _Manage extends ConsumerState<Manage> {
 
   bool? _started;
   List<Athlete> _athletes = [];
+  List<Mark> _marks = [];
 
   @override
   void initState() {
@@ -101,6 +104,7 @@ class _Manage extends ConsumerState<Manage> {
 
     setState(() {
       _athletes = msg.athletes!;
+      _marks = msg.marks!;
     });
   }
 
@@ -160,6 +164,10 @@ class _Manage extends ConsumerState<Manage> {
                   StartStopButton(
                     started: _started!,
                     startRace: _startRace
+                  ),
+                  MarksArea(
+                    markNames: markNames,
+                    marks: _marks
                   ),
                   AthletesArea(
                     markNames: markNames,
