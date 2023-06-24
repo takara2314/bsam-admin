@@ -22,9 +22,12 @@ class MarksArea extends StatelessWidget {
       child: Column(
         children: [
           for (final mark in marks)
-            MarkItem(
-              markNames: markNames,
-              mark: mark
+            Visibility(
+              visible: markNames.containsKey(mark.markNo),
+              child: MarkItem(
+                markNames: markNames,
+                mark: mark
+              )
             )
         ]
       )

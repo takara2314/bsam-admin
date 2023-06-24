@@ -17,6 +17,6 @@ class Mark {
     userId = json['user_id'];
     markNo = json['mark_no'];
     batteryLevel = json['battery_level'];
-    position = Position.fromJson(json['location']);
+    position = Position.fromJson(json['position']);
   }
 }
