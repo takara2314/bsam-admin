@@ -63,6 +63,18 @@ class MarkItem extends StatelessWidget {
             MarkInfo(
               markNames: markNames,
               mark: mark
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(
+                mark.position!.lat! == 0.0
+                ? 'まだ位置情報を取得できていません'
+                : mark.position!.acc! < 20.0 ? '位置情報を取得できています' : '位置情報が不正確です',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: mark.position!.lat! == 0.0 ? Colors.red : Colors.black
+                )
+              )
             )
           ]
         )
