@@ -1,3 +1,4 @@
+import 'package:bsam_admin/components/pop_app_bar.dart';
 import 'package:bsam_admin/pages/manage/marks_area.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -11,7 +12,6 @@ import 'package:bsam_admin/models/athlete.dart';
 import 'package:bsam_admin/models/mark.dart';
 import 'package:bsam_admin/models/live_msg.dart';
 import 'package:bsam_admin/providers.dart';
-import 'package:bsam_admin/pages/manage/app_bar.dart';
 import 'package:bsam_admin/pages/manage/athletes_area.dart';
 import 'package:bsam_admin/pages/manage/start_stop_button.dart';
 import 'package:bsam_admin/utils/random.dart';
@@ -154,7 +154,9 @@ class _Manage extends ConsumerState<Manage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const ManageAppBar(),
+      appBar: const PopAppBar(
+        pageName: 'レース管理'
+      ),
       body: SingleChildScrollView(
         child: Center(
           child: (_started == null
