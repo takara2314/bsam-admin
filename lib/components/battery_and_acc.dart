@@ -12,6 +12,13 @@ class BatteryAndAcc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (acc == 0.0) {
+      return const Text(
+        '手動設定',
+        style: TextStyle(fontSize: 12, color: Colors.grey)
+      );
+    }
+
     return Row(
       children: [
         Row(

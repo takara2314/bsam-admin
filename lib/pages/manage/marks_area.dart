@@ -58,10 +58,11 @@ class MarkItem extends StatelessWidget {
             padding: const EdgeInsets.only(right: 10),
             child: Image.asset(
               'images/icon_mark${mark.markNo}.png',
-              width: 50
+              width: 30
             )
           ),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.only(bottom: 5),

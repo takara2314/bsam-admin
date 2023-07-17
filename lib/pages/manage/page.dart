@@ -26,10 +26,12 @@ class Manage extends ConsumerStatefulWidget {
 }
 
 class _Manage extends ConsumerState<Manage> {
+  static const markNum = 3;
+
   static const markNames = {
-    1: ['上', 'かみ'],
-    2: ['サイド', 'さいど'],
-    3: ['下', 'しも']
+    1: ['上', 'かみ', '①'],
+    2: ['サイド', 'さいど', '②'],
+    3: ['下', 'しも', '③']
   };
 
   late WebSocketChannel _channel;
@@ -135,10 +137,16 @@ class _Manage extends ConsumerState<Manage> {
     });
   }
 
-  _forcePassed(String userId, int markNo) {
-    int nextMarkNo = markNo % 3 + 1;
+  _forcePassed(String userId, int nextMarkNo) {
+    nextMarkNo = nextMarkNo % markNum + 1;
 
     _setNextMarkNo(userId, nextMarkNo);
+  }
+
+  _cancelPassed(String userId, int nextMarkNo) {
+    int previousMarkNo = nextMarkNo - 1 == 0 ? markNum : nextMarkNo - 1;
+
+    _setNextMarkNo(userId, previousMarkNo);
   }
 
   _setNextMarkNo(String userId, int nextMarkNo) {
@@ -174,7 +182,8 @@ class _Manage extends ConsumerState<Manage> {
                   AthletesArea(
                     markNames: markNames,
                     athletes: _athletes,
-                    forcePassed: _forcePassed
+                    forcePassed: _forcePassed,
+                    cancelPassed: _cancelPassed
                   )
                 ]
               )
