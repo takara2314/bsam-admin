@@ -35,6 +35,12 @@ class Mark extends ConsumerStatefulWidget {
 }
 
 class _Mark extends ConsumerState<Mark> {
+  static const markNames = {
+    1: ['上', 'かみ', '①'],
+    2: ['サイド', 'さいど', '②'],
+    3: ['下', 'しも', '③']
+  };
+
   late WebSocketChannel _channel;
 
   late Timer _timerSendPos;
@@ -56,6 +62,9 @@ class _Mark extends ConsumerState<Mark> {
   bool _autoMoveMap = true;
   bool _mapAnimating = false;
   bool _autoMovingMap = false;
+
+  bool _receivedInfoServer = false;
+  bool _sentPosition = false;
 
   @override
   void initState() {
@@ -130,8 +139,9 @@ class _Mark extends ConsumerState<Mark> {
   }
 
   _readWsMsg(dynamic msg) {
-    // final body = json.decode(msg);
-    // debugPrint(body.toString());
+    setState(() {
+      _receivedInfoServer = true;
+    });
   }
 
   _getPosition() async {
@@ -162,6 +172,10 @@ class _Mark extends ConsumerState<Mark> {
         'longitude': _lng,
         'accuracy': _accuracy
       }));
+
+      setState(() {
+        _sentPosition = true;
+      });
     } catch (_) {}
   }
 
@@ -275,7 +289,10 @@ class _Mark extends ConsumerState<Mark> {
             child: Column(
               children: [
                 SendingArea(
-                  markNo: widget.markNo
+                  markNames: markNames,
+                  markNo: widget.markNo,
+                  receivedInfoServer: _receivedInfoServer,
+                  sentPosition: _sentPosition,
                 ),
                 DebugArea(
                   latitude: _lat,
