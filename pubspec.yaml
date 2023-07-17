@@ -35,7 +35,7 @@ dependencies:
   http: ^1.0.0
   web_socket_channel: ^2.4.0
   flutter_riverpod: ^2.3.6
-  google_maps_flutter: ^2.2.8
+  google_maps_flutter: ^2.3.1
   geolocator: ^9.0.1
   wakelock: ^0.6.2
   permission_handler: ^10.2.0

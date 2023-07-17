@@ -20,7 +20,7 @@ class App extends StatelessWidget {
       title: 'B-SAM 本部用',
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.cyan,
+        colorSchemeSeed: Colors.red,
         scaffoldBackgroundColor: const Color(0xFFF2F2F2),
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),

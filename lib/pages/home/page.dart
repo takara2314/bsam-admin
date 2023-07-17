@@ -74,22 +74,24 @@ class _Home extends ConsumerState<Home> {
         assocName: 'セーリング団体名'
       ),
       body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            const RaceNameArea(
-              raceName: 'テストレース2023'
-            ),
-            for (final mark in marks)
-              MarkButton(
-                assocId: _assocId,
-                mark: mark
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const RaceNameArea(
+                raceName: 'テストレース2023'
               ),
-            ManageButton(
-              assocId: _assocId
-            )
-          ]
+              for (final mark in marks)
+                MarkButton(
+                  assocId: _assocId,
+                  mark: mark
+                ),
+              ManageButton(
+                assocId: _assocId
+              )
+            ]
+          )
         )
       )
     );

@@ -3,10 +3,16 @@ import 'package:flutter/material.dart';
 class SendingArea extends StatelessWidget {
   const SendingArea({
     Key? key,
-    required this.markNo
+    required this.markNo,
+    required this.markNames,
+    required this.receivedInfoServer,
+    required this.sentPosition
   }) : super(key: key);
 
   final int markNo;
+  final Map<int, List<String>> markNames;
+  final bool receivedInfoServer;
+  final bool sentPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +21,7 @@ class SendingArea extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'マーク $markNo',
+            '${markNames[markNo]![2]}${markNames[markNo]![0]}マーク',
             style: TextStyle(
               fontSize: 20,
               color: Theme.of(context).colorScheme.tertiary,
@@ -23,7 +29,7 @@ class SendingArea extends StatelessWidget {
             )
           ),
           Text(
-            '送信中です',
+            (sentPosition && receivedInfoServer) ? '送信中です' : '...',
             style: TextStyle(
               fontSize: 36,
               color: Theme.of(context).colorScheme.primary,

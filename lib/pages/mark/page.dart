@@ -35,10 +35,17 @@ class Mark extends ConsumerStatefulWidget {
 }
 
 class _Mark extends ConsumerState<Mark> {
+  static const markNames = {
+    1: ['上', 'かみ', '①'],
+    2: ['サイド', 'さいど', '②'],
+    3: ['下', 'しも', '③']
+  };
+
   late WebSocketChannel _channel;
 
   late Timer _timerSendPos;
   late Timer _timerBattery;
+  late Timer _timerAutoMapMove;
 
   final Completer<GoogleMapController> _controller = Completer();
   final Set<Marker> _mapMarkers = <Marker>{};
@@ -53,6 +60,11 @@ class _Mark extends ConsumerState<Mark> {
   double _lngMap = 0.0;
 
   bool _autoMoveMap = true;
+  bool _mapAnimating = false;
+  bool _autoMovingMap = false;
+
+  bool _receivedInfoServer = false;
+  bool _sentPosition = false;
 
   @override
   void initState() {
@@ -73,12 +85,20 @@ class _Mark extends ConsumerState<Mark> {
       _sendBattery
     );
 
+    _moveMapAutomatically(null);
+    _timerAutoMapMove = Timer.periodic(
+      const Duration(seconds: 10),
+      _moveMapAutomatically
+    );
+
     _connectWs();
   }
 
   @override
   void dispose() {
     _timerSendPos.cancel();
+    _timerBattery.cancel();
+    _timerAutoMapMove.cancel();
     _channel.sink.close(status.goingAway);
     Wakelock.disable();
     super.dispose();
@@ -119,8 +139,9 @@ class _Mark extends ConsumerState<Mark> {
   }
 
   _readWsMsg(dynamic msg) {
-    // final body = json.decode(msg);
-    // debugPrint(body.toString());
+    setState(() {
+      _receivedInfoServer = true;
+    });
   }
 
   _getPosition() async {
@@ -142,16 +163,26 @@ class _Mark extends ConsumerState<Mark> {
   _sendPosition(Timer? timer) async {
     if (!_manual) {
       await _getPosition();
-      _updateMapPosition();
     }
 
     try {
       _channel.sink.add(json.encode({
         'type': 'position',
         'latitude': _lat,
-        'longitude': _lng
+        'longitude': _lng,
+        'accuracy': _accuracy
       }));
+
+      setState(() {
+        _sentPosition = true;
+      });
     } catch (_) {}
+  }
+
+  _moveMapAutomatically(Timer? timer) {
+    if (!_manual) {
+      _updateMapPosition();
+    }
   }
 
   _sendBattery(Timer? timer) async {
@@ -170,12 +201,26 @@ class _Mark extends ConsumerState<Mark> {
   }
 
   _updateMapPosition() async {
-    if (!_autoMoveMap || !mounted) {
+    if (
+      !_autoMoveMap
+      || !mounted
+      || _mapAnimating
+    ) {
       return;
     }
 
+    if (_lat == 0.0 && _lng == 0.0) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      return _updateMapPosition();
+    }
+
+    setState(() {
+      _mapAnimating = true;
+      _autoMovingMap = true;
+    });
+
     final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(
+    await controller.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: LatLng(_lat, _lng),
@@ -183,6 +228,13 @@ class _Mark extends ConsumerState<Mark> {
         )
       )
     );
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      _mapAnimating = false;
+      _autoMovingMap = false;
+    });
   }
 
   _handleMapCreated(GoogleMapController controller) {
@@ -193,6 +245,15 @@ class _Mark extends ConsumerState<Mark> {
     setState(() {
       _latMap = position.target.latitude;
       _lngMap = position.target.longitude;
+    });
+  }
+
+  _handleCameraMoveStarted() {
+    if (_autoMovingMap) {
+      return;
+    }
+
+    setState(() {
       _autoMoveMap = false;
     });
   }
@@ -228,7 +289,10 @@ class _Mark extends ConsumerState<Mark> {
             child: Column(
               children: [
                 SendingArea(
-                  markNo: widget.markNo
+                  markNames: markNames,
+                  markNo: widget.markNo,
+                  receivedInfoServer: _receivedInfoServer,
+                  sentPosition: _sentPosition,
                 ),
                 DebugArea(
                   latitude: _lat,
@@ -245,6 +309,7 @@ class _Mark extends ConsumerState<Mark> {
                   mapMarkers: _mapMarkers,
                   onMapCreated: _handleMapCreated,
                   onCameraMove: _handleMapMove,
+                  onCameraMoveStarted: _handleCameraMoveStarted,
                   changeToManual: _changeToManual,
                   changeToAuto: _changeToAuto
                 )

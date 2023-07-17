@@ -13,6 +13,7 @@ class MapArea extends StatelessWidget {
     required this.mapMarkers,
     required this.onMapCreated,
     required this.onCameraMove,
+    required this.onCameraMoveStarted,
     required this.changeToManual,
     required this.changeToAuto
   }) : super(key: key);
@@ -25,6 +26,7 @@ class MapArea extends StatelessWidget {
   final Set<Marker> mapMarkers;
   final Function(GoogleMapController) onMapCreated;
   final Function(CameraPosition) onCameraMove;
+  final Function() onCameraMoveStarted;
   final Function() changeToManual;
   final Function() changeToAuto;
 
@@ -39,6 +41,7 @@ class MapArea extends StatelessWidget {
           mapMarkers: mapMarkers,
           onMapCreated: onMapCreated,
           onCameraMove: onCameraMove,
+          onCameraMoveStarted: onCameraMoveStarted,
           changeToManual: changeToManual
         ),
         Visibility(
@@ -66,6 +69,7 @@ class MapView extends StatelessWidget {
     required this.mapMarkers,
     required this.onMapCreated,
     required this.onCameraMove,
+    required this.onCameraMoveStarted,
     required this.changeToManual
   }) : super(key: key);
 
@@ -75,6 +79,7 @@ class MapView extends StatelessWidget {
   final Set<Marker> mapMarkers;
   final Function(GoogleMapController) onMapCreated;
   final Function(CameraPosition) onCameraMove;
+  final Function() onCameraMoveStarted;
   final Function() changeToManual;
 
   @override
@@ -98,7 +103,8 @@ class MapView extends StatelessWidget {
               zoom: 18
             ),
             onMapCreated: onMapCreated,
-            onCameraMove: onCameraMove
+            onCameraMove: onCameraMove,
+            onCameraMoveStarted: onCameraMoveStarted
           ),
           Align(
             alignment: Alignment.center,

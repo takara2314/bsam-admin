@@ -1,3 +1,5 @@
+import 'package:bsam_admin/components/pop_app_bar.dart';
+import 'package:bsam_admin/pages/manage/marks_area.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
@@ -7,9 +9,9 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 
 import 'package:bsam_admin/models/athlete.dart';
+import 'package:bsam_admin/models/mark.dart';
 import 'package:bsam_admin/models/live_msg.dart';
 import 'package:bsam_admin/providers.dart';
-import 'package:bsam_admin/pages/manage/app_bar.dart';
 import 'package:bsam_admin/pages/manage/athletes_area.dart';
 import 'package:bsam_admin/pages/manage/start_stop_button.dart';
 import 'package:bsam_admin/utils/random.dart';
@@ -24,16 +26,19 @@ class Manage extends ConsumerStatefulWidget {
 }
 
 class _Manage extends ConsumerState<Manage> {
+  static const markNum = 3;
+
   static const markNames = {
-    1: ['上', 'かみ'],
-    2: ['サイド', 'さいど'],
-    3: ['下', 'しも']
+    1: ['上', 'かみ', '①'],
+    2: ['サイド', 'さいど', '②'],
+    3: ['下', 'しも', '③']
   };
 
   late WebSocketChannel _channel;
 
   bool? _started;
   List<Athlete> _athletes = [];
+  List<Mark> _marks = [];
 
   @override
   void initState() {
@@ -101,6 +106,7 @@ class _Manage extends ConsumerState<Manage> {
 
     setState(() {
       _athletes = msg.athletes!;
+      _marks = msg.marks!;
     });
   }
 
@@ -131,10 +137,16 @@ class _Manage extends ConsumerState<Manage> {
     });
   }
 
-  _forcePassed(String userId, int markNo) {
-    int nextMarkNo = markNo % 3 + 1;
+  _forcePassed(String userId, int nextMarkNo) {
+    nextMarkNo = nextMarkNo % markNum + 1;
 
     _setNextMarkNo(userId, nextMarkNo);
+  }
+
+  _cancelPassed(String userId, int nextMarkNo) {
+    int previousMarkNo = nextMarkNo - 1 == 0 ? markNum : nextMarkNo - 1;
+
+    _setNextMarkNo(userId, previousMarkNo);
   }
 
   _setNextMarkNo(String userId, int nextMarkNo) {
@@ -150,25 +162,34 @@ class _Manage extends ConsumerState<Manage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const ManageAppBar(),
+      appBar: const PopAppBar(
+        pageName: 'レース管理'
+      ),
       body: SingleChildScrollView(
-        child: (_started == null
-          ? const Text('読み込み中')
-          : Column(
-              children: [
-                StartStopButton(
-                  started: _started!,
-                  startRace: _startRace
-                ),
-                AthletesArea(
-                  markNames: markNames,
-                  athletes: _athletes,
-                  forcePassed: _forcePassed
-                )
-              ]
+        child: Center(
+          child: (_started == null
+            ? const Text('読み込み中')
+            : Column(
+                children: [
+                  StartStopButton(
+                    started: _started!,
+                    startRace: _startRace
+                  ),
+                  MarksArea(
+                    markNames: markNames,
+                    marks: _marks
+                  ),
+                  AthletesArea(
+                    markNames: markNames,
+                    athletes: _athletes,
+                    forcePassed: _forcePassed,
+                    cancelPassed: _cancelPassed
+                  )
+                ]
+              )
             )
-          )
         )
+      )
     );
   }
 }

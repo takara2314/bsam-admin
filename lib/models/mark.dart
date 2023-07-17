@@ -1,17 +1,22 @@
+import 'package:bsam_admin/models/position.dart';
+
 class Mark {
   String? userId;
-  double? lat;
-  double? lng;
+  int? markNo;
+  int? batteryLevel;
+  Position? position;
 
   Mark({
     this.userId,
-    this.lat,
-    this.lng
+    this.markNo,
+    this.batteryLevel,
+    this.position
   });
 
   Mark.fromJson(Map<String, dynamic> json) {
     userId = json['user_id'];
-    lat = json['latitude'].toDouble();
-    lng = json['longitude'].toDouble();
+    markNo = json['mark_no'];
+    batteryLevel = json['battery_level'];
+    position = Position.fromJson(json['position']);
   }
 }
