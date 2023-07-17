@@ -20,7 +20,7 @@ class MarksArea extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 20),
       width: width * 0.9,
-      padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+      padding: const EdgeInsets.only(top: 20, left: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10)
