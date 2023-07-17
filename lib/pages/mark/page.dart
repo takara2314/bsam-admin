@@ -79,6 +79,7 @@ class _Mark extends ConsumerState<Mark> {
   @override
   void dispose() {
     _timerSendPos.cancel();
+    _timerBattery.cancel();
     _channel.sink.close(status.goingAway);
     Wakelock.disable();
     super.dispose();
@@ -149,7 +150,8 @@ class _Mark extends ConsumerState<Mark> {
       _channel.sink.add(json.encode({
         'type': 'position',
         'latitude': _lat,
-        'longitude': _lng
+        'longitude': _lng,
+        'accuracy': _accuracy
       }));
     } catch (_) {}
   }
