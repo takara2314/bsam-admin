@@ -115,10 +115,12 @@ class _Manage extends ConsumerState<Manage> {
 
     switch (body['type']) {
     case 'start_race':
+      debugPrint('start_race');
       _receiveStartRace(body);
       break;
 
     case 'live':
+      debugPrint('live');
       _receiveLive(LiveMsg.fromJson(body));
       break;
     }
