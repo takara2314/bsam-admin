@@ -68,17 +68,31 @@ class MarkItem extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 5),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    '${markNames[mark.markNo]![0]}マーク',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16
-                    )
+                  child: Row(
+                    children: [
+                      Text(
+                        '${markNames[mark.markNo]![0]}マーク',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16
+                        )
+                      ),
+                      Visibility(
+                        visible: mark.userId == '' && mark.position!.lat != 0.0,
+                        child: const Text(
+                          '（切断）',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.deepOrange
+                          )
+                        )
+                      )
+                    ]
                   )
                 )
               ),
               Visibility(
-                visible: mark.userId != '' && mark.position!.lat != 0.0,
+                visible: mark.position!.lat != 0.0,
                 child: BatteryAndAcc(
                   batteryLevel: mark.batteryLevel!,
                   acc: mark.position!.acc!
@@ -88,16 +102,6 @@ class MarkItem extends StatelessWidget {
                 visible: mark.userId == '' && mark.position!.lat == 0.0,
                 child: const Text(
                   '設定されていません',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.deepOrange
-                  )
-                )
-              ),
-              Visibility(
-                visible: mark.userId == '' && mark.position!.lat != 0.0,
-                child: const Text(
-                  '切断されたため、最終の位置情報を提供します',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.deepOrange
