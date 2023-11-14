@@ -2,8 +2,6 @@ name: Check quality
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
   test:
@@ -18,7 +16,10 @@ jobs:
           deno-version: "1.38.0"
 
       - name: Create dummy .env
-        run: deno run --allow-write=. .github/createDummyEnv.ts
+        run: >
+            deno run --allow-write=. .github/createEnviron.ts
+            --BSAM_SERVER_URL wss://example.com
+            --BSAM_SERVER_TOKEN secret
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2.10.0

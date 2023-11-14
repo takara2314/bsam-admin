@@ -1,18 +1,13 @@
 name: Build
 
 on:
-  workflow_run:
-    workflows:
-      - "Check quality"
-    branches:
-      - main
-    types:
-      - completed
+    push:
+      branches:
+        - main
 
 jobs:
   android:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -22,8 +17,11 @@ jobs:
         with:
           deno-version: "1.38.0"
 
-      - name: Create dummy .env
-        run: deno run --allow-write=. .github/createDummyEnv.ts
+      - name: Create .env
+        run: >
+            deno run --allow-write=. .github/createEnviron.ts
+            --BSAM_SERVER_URL ${{ secrets.BSAM_SERVER_URL }}
+            --BSAM_SERVER_TOKEN ${{ secrets.BSAM_SERVER_TOKEN }}
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2.10.0
