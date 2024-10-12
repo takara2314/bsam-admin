@@ -1,0 +1,1 @@
+const passingDistanceMeter = 15;

@@ -1,77 +1,63 @@
+import 'package:bsam_admin/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bsam_admin/pages/home/page.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-Future main() async {
-  // Load environment variables
-  await dotenv.load(fileName: '.env');
+// 本番環境
+// const apiServerBaseUrl = 'https://stg.api.bsam.app';
+// const authServerBaseUrl = 'https://stg.auth.bsam.app';
+// const gameServerBaseUrlWs = 'wss://stg.game.bsam.app';
 
-  runApp(const ProviderScope(child: App()));
+// 開発環境 (Android)
+const apiServerBaseUrl = 'http://10.0.2.2:8080';
+const authServerBaseUrl = 'http://10.0.2.2:8082';
+const gameServerBaseUrlWs = 'ws://10.0.2.2:8081';
+
+// 開発環境 (iOS)
+// const apiServerBaseUrl = 'http://localhost:8080';
+// const authServerBaseUrl = 'http://localhost:8082';
+// const gameServerBaseUrlWs = 'ws://localhost:8081';
+
+const bodyTextSize = 16.0;
+const bodyHeadingSize = 20.0;
+
+const bodyTextColor = Color.fromARGB(255, 62, 62, 62);
+const primaryColor = Color.fromARGB(255, 149, 22, 0);
+const secondaryColor = Color.fromARGB(255, 255, 84, 79);
+const tertiaryColor = Color.fromARGB(255, 124, 124, 124);
+
+const backgroundColor = Color.fromARGB(255, 242, 242, 242);
+
+void main() {
+  runApp(
+    const ProviderScope(
+      child: App(),
+    ),
+  );
 }
 
 class App extends StatelessWidget {
-  const App({Key? key}) : super(key: key);
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    // 画面の向きを縦に固定
+    WidgetsFlutterBinding.ensureInitialized();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
+    return MaterialApp.router(
       title: 'B-SAM 本部用',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
+        scaffoldBackgroundColor: backgroundColor,
         useMaterial3: true,
-        colorSchemeSeed: Colors.red,
-        scaffoldBackgroundColor: const Color(0xFFF2F2F2),
-        appBarTheme: const AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
-          backgroundColor: Colors.transparent,
-        ),
-        textTheme: TextTheme(
-          displayLarge: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary
-          ),
-          displayMedium: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          displaySmall: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
-          headlineMedium: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold
-          ),
-          headlineSmall: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold
-          ),
-          titleLarge: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold
-          ),
-          bodyLarge: const TextStyle(
-            fontSize: 18
-          ),
-          bodyMedium: const TextStyle(
-            fontSize: 16
-          ),
-          labelLarge: const TextStyle(
-            fontSize: 14
-          ),
-          bodySmall: const TextStyle(
-            fontSize: 12
-          ),
-          labelSmall: const TextStyle(
-            fontSize: 10
-          )
-        )
       ),
-      home: const Home()
+      routerDelegate: router.routerDelegate,
+      routeInformationParser: router.routeInformationParser,
+      routeInformationProvider: router.routeInformationProvider,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

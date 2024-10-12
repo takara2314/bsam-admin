@@ -1,0 +1,1 @@
+const maxAthleteNo = 10;
