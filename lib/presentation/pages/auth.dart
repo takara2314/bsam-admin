@@ -28,9 +28,10 @@ class AuthPage extends HookConsumerWidget {
 
     useEffect(() {
       () async {
-        // 位置情報が許可されていないなら、位置情報許可ページに推移する
-        final status = await Permission.location.status;
-        if (status != PermissionStatus.granted) {
+        // 位置情報と通知が許可されていないなら、許可ページに推移する
+        final locationStatus = await Permission.location.status;
+        final notificationStatus = await Permission.notification.status;
+        if (locationStatus != PermissionStatus.granted || notificationStatus != PermissionStatus.granted) {
           if (context.mounted) {
             context.go(checkPermissionPagePath);
           }

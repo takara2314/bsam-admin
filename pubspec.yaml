@@ -47,9 +47,9 @@ dependencies:
   flutter_use: ^0.0.4
   geolocator: ^9.0.1
   flutter_use_geolocation: ^0.0.4
-  flutter_tts: ^4.0.2
   async_locks: ^4.0.1
   wakelock_plus: ^1.2.8
+  flutter_foreground_task: ^8.10.4
 
 dev_dependencies:
   flutter_test:

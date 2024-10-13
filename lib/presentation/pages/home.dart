@@ -234,7 +234,7 @@ class ManagingStartButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(
-        top: 20,
+        top: 50,
         left: 30,
         right: 30,
       ),

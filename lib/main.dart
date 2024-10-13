@@ -1,6 +1,7 @@
 import 'package:bsam_admin/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // 本番環境
@@ -30,6 +31,8 @@ const backgroundColor = Color.fromARGB(255, 242, 242, 242);
 const themeBackgroundColor = Color.fromARGB(255, 255, 196, 192);
 
 void main() {
+  FlutterForegroundTask.initCommunicationPort();
+
   runApp(
     const ProviderScope(
       child: App(),

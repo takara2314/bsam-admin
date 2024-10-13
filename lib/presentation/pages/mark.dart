@@ -1,5 +1,5 @@
 import 'package:bsam_admin/app/game/detail/hook.dart';
-import 'package:bsam_admin/app/wakelock/wakelock.dart';
+import 'package:bsam_admin/app/game/mark/marking.dart';
 import 'package:bsam_admin/domain/mark.dart';
 import 'package:bsam_admin/presentation/widgets/text.dart';
 import 'package:flutter/material.dart';
@@ -31,15 +31,18 @@ class MarkPage extends HookConsumerWidget {
       tokenNotifier.state,
     );
 
-    // スリープしないようにする
-    useWakelock();
-
-    // 位置情報を取得する
+    // 位置情報を取得する (表示用)
     final geolocation = useGeolocation(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.best,
         distanceFilter: 0,
       )
+    );
+
+    // フォアグラウンドで位置情報を取得・送信する
+    final marking = useMarking(
+      tokenNotifier.state,
+      markNo,
     );
 
     return PopScope(
@@ -62,10 +65,11 @@ class MarkPage extends HookConsumerWidget {
           child: Column(
             children: [
               RaceMarkDirectionInfo(markNo: markNo),
-              MarkSensorInfo(
+              MarkSensorAndServerInfo(
                 latitude: geolocation.position?.latitude ?? 0,
                 longitude: geolocation.position?.longitude ?? 0,
                 accuracyMeter: geolocation.position?.accuracy ?? 0,
+                isLocationSent: marking.isLocationSent.value,
               )
             ]
           )
@@ -181,15 +185,17 @@ class RaceMarkDirectionInfo extends StatelessWidget {
   }
 }
 
-class MarkSensorInfo extends StatelessWidget {
+class MarkSensorAndServerInfo extends StatelessWidget {
   final double latitude;
   final double longitude;
   final double accuracyMeter;
+  final bool isLocationSent;
 
-  const MarkSensorInfo({
+  const MarkSensorAndServerInfo({
     required this.latitude,
     required this.longitude,
     required this.accuracyMeter,
+    required this.isLocationSent,
     super.key
   });
 
@@ -202,30 +208,64 @@ class MarkSensorInfo extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Table(
-        columnWidths: const {
-          0: FlexColumnWidth(3),
-          1: FlexColumnWidth(5),
-        },
+      child: Column(
         children: [
-          TableRow(
-            children: [
-              const RaceMarkSensorInfoLabelCell('緯度 / 経度'),
-              RaceMarkSensorInfoValueCell(
-                '${latitude.toStringAsFixed(6)} / ${longitude.toStringAsFixed(6)}'
-              ),
-            ],
+          MarkSensorInfoArea(
+            latitude: latitude,
+            longitude: longitude,
+            accuracyMeter: accuracyMeter,
           ),
-          TableRow(
-            children: [
-              const RaceMarkSensorInfoLabelCell('位置情報の精度'),
-              RaceMarkSensorInfoValueCell(
-                '${accuracyMeter.toStringAsFixed(2)}m'
-              ),
-            ],
-          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: NormalText(
+              isLocationSent
+                ? 'サーバーに位置情報を送信できました'
+                : 'サーバーに位置情報を送信中...'
+            )
+          )
         ]
       )
+    );
+  }
+}
+
+class MarkSensorInfoArea extends StatelessWidget {
+  final double latitude;
+  final double longitude;
+  final double accuracyMeter;
+
+  const MarkSensorInfoArea({
+    required this.latitude,
+    required this.longitude,
+    required this.accuracyMeter,
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Table(
+      columnWidths: const {
+        0: FlexColumnWidth(3),
+        1: FlexColumnWidth(5),
+      },
+      children: [
+        TableRow(
+          children: [
+            const RaceMarkSensorInfoLabelCell('緯度 / 経度'),
+            RaceMarkSensorInfoValueCell(
+              '${latitude.toStringAsFixed(6)} / ${longitude.toStringAsFixed(6)}'
+            ),
+          ],
+        ),
+        TableRow(
+          children: [
+            const RaceMarkSensorInfoLabelCell('位置情報の精度'),
+            RaceMarkSensorInfoValueCell(
+              '${accuracyMeter.toStringAsFixed(2)}m'
+            ),
+          ],
+        ),
+      ]
     );
   }
 }

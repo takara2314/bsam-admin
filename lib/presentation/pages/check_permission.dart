@@ -13,15 +13,20 @@ class CheckPermissionPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     requestPermission() async {
-      final status = await Permission.location.request();
-      if (status == PermissionStatus.permanentlyDenied) {
+      final locationStatus = await Permission.location.request();
+      final notificationStatus = await Permission.notification.request();
+      if (
+        locationStatus == PermissionStatus.permanentlyDenied ||
+        notificationStatus == PermissionStatus.permanentlyDenied
+      ) {
         await openAppSettings();
       }
 
-      // 位置情報が許可されているなら、認証ページに推移する
+      // 位置情報と通知が許可されているなら、認証ページに推移する
       if (
-        status == PermissionStatus.granted
-        && context.mounted
+        locationStatus == PermissionStatus.granted &&
+        notificationStatus == PermissionStatus.granted &&
+        context.mounted
       ) {
         context.go(authPagePath);
       }
@@ -43,13 +48,13 @@ class CheckPermissionPage extends HookConsumerWidget {
               Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 child: const Heading(
-                  '位置情報を許可してください'
+                  '位置情報と通知を許可してください'
                 )
               ),
               Container(
                 margin: const EdgeInsets.only(bottom: 30),
                 child: const NormalText(
-                  'B-SAMは位置情報を利用して、セーリングのナビゲーションを行います。',
+                  'B-SAMは位置情報を利用して、セーリングのナビゲーションを行います。また、画面を閉じても処理を続行するため、通知も許可してください。',
                   textAlign: TextAlign.center
                 ),
               ),
