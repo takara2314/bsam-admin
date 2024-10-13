@@ -1,15 +1,15 @@
 import 'dart:convert';
 
 import 'package:bsam_admin/app/game/client.dart';
+import 'package:bsam_admin/domain/athlete.dart';
 import 'package:bsam_admin/domain/mark.dart';
 import 'package:flutter/material.dart';
 
 // WebSocketハンドラーのタイプ定数
 const handlerTypeConnectResult = 'connect_result';
 const handlerTypeAuthResult = 'auth_result';
-const handlerTypeMarkGeolocations = 'mark_geolocations';
+const handlerTypeParticipantsInfo = 'participants_info';
 const handlerTypeManageRaceStatus = 'manage_race_status';
-const handlerTypeManageNextMark = 'manage_next_mark';
 
 // WebSocketからのメッセージを受信し処理するクラス
 class GameWebSocketReceiver {
@@ -32,19 +32,14 @@ class GameWebSocketReceiver {
         _client.engine.handleAuthResult(parsed);
         break;
 
-      case handlerTypeMarkGeolocations:
-        final parsed = MarkGeolocationsHandlerMessage.fromJson(msg);
-        _client.engine.handleMarkGeolocations(parsed);
-        break;
-
       case handlerTypeManageRaceStatus:
         final parsed = ManageRaceStatusHandlerMessage.fromJson(msg);
         _client.engine.handleManageRaceStatus(parsed);
         break;
 
-      case handlerTypeManageNextMark:
-        final parsed = ManageNextMarkHandlerMessage.fromJson(msg);
-        _client.engine.handleManageNextMark(parsed);
+      case handlerTypeParticipantsInfo:
+        final parsed = ParticipantsInfoHandlerMessage.fromJson(msg);
+        _client.engine.handleParticipantsInfo(parsed);
         break;
 
       default:
@@ -105,23 +100,28 @@ class AuthResultHandlerMessage {
   }
 }
 
-class MarkGeolocationsHandlerMessage {
+class ParticipantsInfoHandlerMessage {
   final String messageType;
   final int markCounts;
   final List<MarkGeolocation> marks;
+  final List<AthleteInfo> athletes;
 
-  MarkGeolocationsHandlerMessage({
+  ParticipantsInfoHandlerMessage({
     required this.messageType,
     required this.markCounts,
     required this.marks,
+    required this.athletes,
   });
 
-  factory MarkGeolocationsHandlerMessage.fromJson(Map<String, dynamic> json) {
-    return MarkGeolocationsHandlerMessage(
+  factory ParticipantsInfoHandlerMessage.fromJson(Map<String, dynamic> json) {
+    return ParticipantsInfoHandlerMessage(
       messageType: json['type'] as String,
       markCounts: json['mark_counts'] as int,
       marks: (json['marks'] as List<dynamic>)
           .map((e) => MarkGeolocation.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      athletes: (json['athletes'] as List<dynamic>)
+          .map((e) => AthleteInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -146,23 +146,6 @@ class ManageRaceStatusHandlerMessage {
       started: json['started'] as bool,
       startedAt: DateTime.parse(json['started_at'] as String),
       finishedAt: DateTime.parse(json['finished_at'] as String),
-    );
-  }
-}
-
-class ManageNextMarkHandlerMessage {
-  final String messageType;
-  final int nextMarkNo;
-
-  ManageNextMarkHandlerMessage({
-    required this.messageType,
-    required this.nextMarkNo,
-  });
-
-  factory ManageNextMarkHandlerMessage.fromJson(Map<String, dynamic> json) {
-    return ManageNextMarkHandlerMessage(
-      messageType: json['type'] as String,
-      nextMarkNo: json['next_mark_no'] as int,
     );
   }
 }

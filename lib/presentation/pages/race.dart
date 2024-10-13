@@ -1,8 +1,6 @@
 import 'package:bsam_admin/app/game/client.dart';
-import 'package:bsam_admin/app/game/announcer.dart';
 import 'package:bsam_admin/app/game/detail/hook.dart';
 import 'package:bsam_admin/app/game/geolocation_register.dart';
-import 'package:bsam_admin/app/voice/voice.dart';
 import 'package:bsam_admin/app/wakelock/wakelock.dart';
 import 'package:bsam_admin/domain/distance.dart';
 import 'package:bsam_admin/domain/mark.dart';
@@ -57,22 +55,6 @@ class RacePage extends HookConsumerWidget {
       accuracy: LocationAccuracy.best,
       distanceFilter: 0,
     ));
-
-    // アナウンスに使用するTTS
-    final voice = useVoice(
-      'ja-JP',
-      0.6,
-      1.0,
-      1.0,
-    );
-
-    // アナウンスを行う
-    final callbackOnPassedMark = useAnnouncer(
-      context,
-      ref,
-      voice,
-      gameState,
-    );
 
     // 位置情報が更新されるたびに、ゲームクライアントに登録
     useGeolocationRegister(

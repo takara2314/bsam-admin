@@ -4,8 +4,7 @@ import 'package:bsam_admin/app/game/client.dart';
 
 // WebSocketアクションのタイプ定数
 const actionTypeAuth = 'auth';
-const actionTypePostGeolocation = 'post_geolocation';
-const actionTypePassedMark = 'passed_mark';
+const actionTypeManageNextMark = 'manage_next_mark';
 
 // WebSocketでメッセージを送信するクラス
 class GameWebSocketSender {
@@ -18,13 +17,8 @@ class GameWebSocketSender {
     return _client.engine.ws.send(msg.toJsonString());
   }
 
-  // 位置情報を送信する
-  bool sendPostGeolocationAction(PostGeolocationActionMessage msg) {
-    return _client.engine.ws.send(msg.toJsonString());
-  }
-
-  // マーク通過アクションを送信する
-  bool sendPassedMarkAction(PassedMarkActionMessage msg) {
+  // 次のマーク管理アクションを送信する
+  bool sendManageNextMarkAction(ManageNextMarkActionMessage msg) {
     return _client.engine.ws.send(msg.toJsonString());
   }
 }
@@ -52,59 +46,21 @@ class AuthActionMessage {
   String toJsonString() => jsonEncode(toJson());
 }
 
-class PostGeolocationActionMessage {
+class ManageNextMarkActionMessage {
   final String type;
-  final double latitude;
-  final double longitude;
-  final double altitudeMeter;
-  final double accuracyMeter;
-  final double altitudeAccuracyMeter;
-  final double heading;
-  final double speedMeterPerSec;
-  final DateTime recordedAt;
+  final String targetDeviceId;
+  final int nextMarkNo;
 
-  PostGeolocationActionMessage({
-    this.type = actionTypePostGeolocation,
-    required this.latitude,
-    required this.longitude,
-    required this.altitudeMeter,
-    required this.accuracyMeter,
-    required this.altitudeAccuracyMeter,
-    required this.heading,
-    required this.speedMeterPerSec,
-    required this.recordedAt,
+  ManageNextMarkActionMessage({
+    this.type = actionTypeManageNextMark,
+    required this.targetDeviceId,
+    required this.nextMarkNo,
   });
 
   Map<String, dynamic> toJson() => {
     'type': type,
-    'latitude': latitude,
-    'longitude': longitude,
-    'altitude_meter': altitudeMeter,
-    'accuracy_meter': accuracyMeter,
-    'altitude_accuracy_meter': altitudeAccuracyMeter,
-    'heading': heading,
-    'speed_meter_per_sec': speedMeterPerSec,
-    'recorded_at': recordedAt.toUtc().toIso8601String(),
-  };
-
-  String toJsonString() => jsonEncode(toJson());
-}
-
-class PassedMarkActionMessage {
-  final String type;
-  final int passedMarkNo;
-  final DateTime passedAt;
-
-  PassedMarkActionMessage({
-    this.type = actionTypePassedMark,
-    required this.passedMarkNo,
-    required this.passedAt,
-  });
-
-  Map<String, dynamic> toJson() => {
-    'type': type,
-    'passed_mark_no': passedMarkNo,
-    'passed_at': passedAt.toUtc().toIso8601String(),
+    'target_device_id': targetDeviceId,
+    'next_mark_no': nextMarkNo,
   };
 
   String toJsonString() => jsonEncode(toJson());
