@@ -10,14 +10,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 // const gameServerBaseUrlWs = 'wss://stg.game.bsam.app';
 
 // 開発環境 (Android)
-const apiServerBaseUrl = 'http://10.0.2.2:8080';
-const authServerBaseUrl = 'http://10.0.2.2:8082';
-const gameServerBaseUrlWs = 'ws://10.0.2.2:8081';
+// const apiServerBaseUrl = 'http://10.0.2.2:8080';
+// const authServerBaseUrl = 'http://10.0.2.2:8082';
+// const gameServerBaseUrlWs = 'ws://10.0.2.2:8081';
 
 // 開発環境 (iOS)
-// const apiServerBaseUrl = 'http://localhost:8080';
-// const authServerBaseUrl = 'http://localhost:8082';
-// const gameServerBaseUrlWs = 'ws://localhost:8081';
+const apiServerBaseUrl = 'http://localhost:8080';
+const authServerBaseUrl = 'http://localhost:8082';
+const gameServerBaseUrlWs = 'ws://localhost:8081';
 
 const bodyTextSize = 16.0;
 const bodyHeadingSize = 20.0;
