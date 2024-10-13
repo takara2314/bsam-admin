@@ -41,12 +41,14 @@ class LoginPage extends HookConsumerWidget {
         _associationIdFieldController.text,
         _passwordFieldController.text
       )
-        .then((res) {
+        .then((res) async {
           // ログイン成功したら、トークンを保存してホームページに推移する
           if (context.mounted) {
             hideNotification(context);
-            saveToken(ref, res.token);
-            context.go(homePagePath);
+            await saveToken(ref, res.token);
+            if (context.mounted) {
+              context.go(homePagePath);
+            }
           }
         })
         .catchError((error) {
