@@ -27,6 +27,7 @@ const secondaryColor = Color.fromARGB(255, 255, 84, 79);
 const tertiaryColor = Color.fromARGB(255, 124, 124, 124);
 
 const backgroundColor = Color.fromARGB(255, 242, 242, 242);
+const themeBackgroundColor = Color.fromARGB(255, 255, 196, 192);
 
 void main() {
   runApp(

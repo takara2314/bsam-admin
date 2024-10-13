@@ -1,15 +1,17 @@
 import 'package:bsam_admin/presentation/pages/check_permission.dart';
+import 'package:bsam_admin/presentation/pages/manage.dart';
+import 'package:bsam_admin/presentation/pages/mark.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bsam_admin/presentation/pages/auth.dart';
 import 'package:bsam_admin/presentation/pages/home.dart';
 import 'package:bsam_admin/presentation/pages/login.dart';
-import 'package:bsam_admin/presentation/pages/race.dart';
 
 const checkPermissionPagePath = '/check_permission';
 const authPagePath = '/auth';
 const loginPagePath = '/login';
 const homePagePath = '/';
-const racePagePathBase = '/race/';
+const markPagePathBase = '/marking/';
+const managePagePath = '/manage';
 
 final GoRouter router = GoRouter(
   initialLocation: authPagePath,
@@ -31,10 +33,14 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const HomePage(),
     ),
     GoRoute(
-      path: '$racePagePathBase:athleteId',
-      builder: (context, state) => RacePage(
-        athleteId: state.pathParameters['athleteId']!,
+      path: '$markPagePathBase:markNo',
+      builder: (context, state) => MarkPage(
+        markNo: int.parse(state.pathParameters['markNo']!),
       ),
+    ),
+    GoRoute(
+      path: managePagePath,
+      builder: (context, state) => const ManagePage(),
     ),
   ],
 );
