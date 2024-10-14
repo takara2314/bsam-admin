@@ -1,6 +1,7 @@
 import 'package:bsam_admin/app/game/client.dart';
 import 'package:bsam_admin/app/game/detail/hook.dart';
 import 'package:bsam_admin/domain/athlete.dart';
+import 'package:bsam_admin/domain/geolocation.dart';
 import 'package:bsam_admin/domain/mark.dart';
 import 'package:bsam_admin/presentation/widgets/button.dart';
 import 'package:bsam_admin/presentation/widgets/icon.dart';
@@ -363,7 +364,7 @@ class ManageAthlete extends StatelessWidget {
     final athleteNo = retrieveAthleteNo(athleteInfo.deviceId);
     final geolocation = MarkGeolocation(
       markNo: 0,
-      stored: true,
+      stored: isValidLatLng(athleteInfo.latitude, athleteInfo.longitude),
       latitude: athleteInfo.latitude,
       longitude: athleteInfo.longitude,
       accuracyMeter: athleteInfo.accuracyMeter,
@@ -563,41 +564,62 @@ class ManageGeolocationDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 5),
+      child: markGeolocation.stored
+        ? ManageGeolocationDetailTable(
+            markGeolocation: markGeolocation
+          )
+        : NormalText(
+            'まだ位置情報を取得できていません',
+            color: warningColor,
+          )
+    );
+  }
+}
+
+class ManageGeolocationDetailTable extends StatelessWidget {
+  final MarkGeolocation markGeolocation;
+
+  const ManageGeolocationDetailTable({
+    required this.markGeolocation,
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final accuracyMeterForLabel = markGeolocation.accuracyMeter.toStringAsFixed(2);
     final elapsedTime = formatElapsedTimeInJapanese(markGeolocation.recordedAt);
 
-    return Container(
-      margin: const EdgeInsets.only(top: 5),
-      child: Table(
-        columnWidths: const {
-          0: FlexColumnWidth(4),
-          1: FlexColumnWidth(3),
-        },
-        children: [
-          TableRow(
-            children: [
-              const ManageGeolocationDetailLabelCell(
-                label: '位置情報の精度'
-              ),
-              ManageGeolocationDetailValueCell(
-                value: '${accuracyMeterForLabel}m',
-                isWarning: isBadAccuracyMeter(markGeolocation.accuracyMeter)
-              ),
-            ],
-          ),
-          TableRow(
-            children: [
-              const ManageGeolocationDetailLabelCell(
-                label: '最終計測'
-              ),
-              ManageGeolocationDetailValueCell(
-                value: '$elapsedTime前',
-                isWarning: isBadElapsedTimeHour(markGeolocation.recordedAt)
-              ),
-            ],
-          ),
-        ]
-      )
+    return Table(
+      columnWidths: const {
+        0: FlexColumnWidth(4),
+        1: FlexColumnWidth(3),
+      },
+      children: [
+        TableRow(
+          children: [
+            const ManageGeolocationDetailLabelCell(
+              label: '位置情報の精度'
+            ),
+            ManageGeolocationDetailValueCell(
+              value: '${accuracyMeterForLabel}m',
+              isWarning: isBadAccuracyMeter(markGeolocation.accuracyMeter)
+            ),
+          ],
+        ),
+        TableRow(
+          children: [
+            const ManageGeolocationDetailLabelCell(
+              label: '最終計測'
+            ),
+            ManageGeolocationDetailValueCell(
+              value: '$elapsedTime前',
+              isWarning: isBadElapsedTimeHour(markGeolocation.recordedAt)
+            ),
+          ],
+        ),
+      ]
     );
   }
 }
