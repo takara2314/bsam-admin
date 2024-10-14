@@ -27,6 +27,8 @@ class GameClientNotifier extends StateNotifier<GameClientState> {
       started: false,
       marks: null,
       athletes: null,
+      startedAt: null,
+      finishedAt: null,
     )
   ) {
     engine = GameEngine(_ref, this);
@@ -35,6 +37,7 @@ class GameClientNotifier extends StateNotifier<GameClientState> {
   // 公開メソッド
   void connect() => engine.ws.connect();
   void disconnect() => engine.ws.disconnect();
+  void manageRaceStatus(bool started) => engine.manageRaceStatus(started);
   void manageNextMark(String targetDeviceId, int nextMarkNo) => engine.manageNextMark(targetDeviceId, nextMarkNo);
 
   // ステートのgetterとsetter
@@ -49,9 +52,8 @@ class GameClientNotifier extends StateNotifier<GameClientState> {
   }
 
   bool get started => state.started;
-  set started(bool value) {
-    state = state.copyWith(started: value);
-  }
+  DateTime? get startedAt => state.startedAt;
+  DateTime? get finishedAt => state.finishedAt;
 
   List<MarkGeolocation>? get marks => state.marks;
   set marks(List<MarkGeolocation>? value) {
@@ -61,5 +63,17 @@ class GameClientNotifier extends StateNotifier<GameClientState> {
   List<AthleteInfo>? get athletes => state.athletes;
   set athletes(List<AthleteInfo>? value) {
     state = state.copyWith(athletes: value);
+  }
+
+  void setRaceStatus(
+    bool started,
+    DateTime? startedAt,
+    DateTime? finishedAt
+  ) {
+    state = state.copyWithNullableRaceStatus(
+      started: started,
+      startedAt: startedAt,
+      finishedAt: finishedAt
+    );
   }
 }

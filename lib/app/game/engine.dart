@@ -1,16 +1,10 @@
-import 'dart:async';
-
 import 'package:bsam_admin/app/game/client.dart';
 import 'package:bsam_admin/app/game/state.dart';
 import 'package:bsam_admin/app/game/websocket/receiver.dart';
 import 'package:bsam_admin/app/game/websocket/sender.dart';
 import 'package:bsam_admin/app/game/websocket/websocket.dart';
-import 'package:bsam_admin/domain/judge.dart';
-import 'package:bsam_admin/domain/mark.dart';
 import 'package:bsam_admin/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_use_geolocation/flutter_use_geolocation.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // ゲームの主要なロジックを管理するクラス
@@ -57,6 +51,15 @@ class GameEngine {
     ));
   }
 
+  // レースの開始状況を管理する
+  void manageRaceStatus(bool started) {
+    _client.engine.ws.sender.sendManageRaceStatusAction(ManageRaceStatusActionMessage(
+      started: started,
+      startedAt: _client.startedAt,
+      finishedAt: _client.finishedAt
+    ));
+  }
+
   // そのデバイスを強制的に特定のマークに案内する
   void manageNextMark(String targetDeviceId, int nextMarkNo) {
     _client.engine.ws.sender.sendManageNextMarkAction(ManageNextMarkActionMessage(
@@ -88,10 +91,16 @@ class GameEngine {
     debugPrint('---\n');
 
     _client.marks = msg.marks;
+    _client.athletes = msg.athletes;
   }
 
   void handleManageRaceStatus(ManageRaceStatusHandlerMessage msg) {
-    _client.started = msg.started;
+    _client.setRaceStatus(
+      msg.started,
+      msg.startedAt,
+      msg.finishedAt
+    );
+
     // レースがスタートしたなら
     if (msg.started) {
       handleStarted();
