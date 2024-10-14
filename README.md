@@ -6,7 +6,7 @@
 
 # B-SAM Admin - 視覚障がい者セーリング支援アプリ 選手用アプリ (本部用)
 
-[![Dart](https://img.shields.io/badge/Go-ffffff?style=for-the-badge&labelColor=00b4ab&logoColor=ffffff&color=f5f5f5&logo=dart)](https://dart.dev/)
+[![Dart](https://img.shields.io/badge/Dart-ffffff?style=for-the-badge&labelColor=00b4ab&logoColor=ffffff&color=f5f5f5&logo=dart)](https://dart.dev/)
 [![Flutter](https://img.shields.io/badge/Flutter-ffffff?style=for-the-badge&labelColor=54c5f8&logoColor=ffffff&color=f5f5f5&logo=flutter)](https://flutter.dev/)
 
 </section>
