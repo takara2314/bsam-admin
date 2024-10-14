@@ -3,6 +3,7 @@ import 'package:bsam_admin/app/game/state.dart';
 import 'package:bsam_admin/app/game/websocket/receiver.dart';
 import 'package:bsam_admin/app/game/websocket/sender.dart';
 import 'package:bsam_admin/app/game/websocket/websocket.dart';
+import 'package:bsam_admin/domain/mark.dart';
 import 'package:bsam_admin/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -60,8 +61,37 @@ class GameEngine {
     ));
   }
 
+  // そのデバイスを強制的に前のマークに案内する
+  void manageCancelPassing(
+    String targetDeviceId,
+    int nowNextMarkNo,
+    int wantMarkCounts
+  ) {
+    final nextMarkNo = calcPrevMarkNo(
+      wantMarkCounts,
+      nowNextMarkNo
+    );
+    manageNextMark(targetDeviceId, nextMarkNo);
+  }
+
+  // そのデバイスを強制的に次のマークに案内する
+  void managePassing(
+    String targetDeviceId,
+    int nowNextMarkNo,
+    int wantMarkCounts
+  ) {
+    final nextMarkNo = calcNextMarkNo(
+      wantMarkCounts,
+      nowNextMarkNo
+    );
+    manageNextMark(targetDeviceId, nextMarkNo);
+  }
+
   // そのデバイスを強制的に特定のマークに案内する
-  void manageNextMark(String targetDeviceId, int nextMarkNo) {
+  void manageNextMark(
+    String targetDeviceId,
+    int nextMarkNo,
+  ) {
     _client.engine.ws.sender.sendManageNextMarkAction(ManageNextMarkActionMessage(
       targetDeviceId: targetDeviceId,
       nextMarkNo: nextMarkNo,

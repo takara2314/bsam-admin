@@ -72,3 +72,28 @@ class SecondaryButton extends StatelessWidget {
     );
   }
 }
+
+class TertiaryButton extends StatelessWidget {
+  final String label;
+  final void Function()? onPressed;
+
+  const TertiaryButton({
+    required this.label,
+    this.onPressed,
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onPressed,
+      child: Text(label,
+        style: const TextStyle(
+          color: primaryColor,
+          fontSize: 16,
+          fontWeight: FontWeight.bold
+        ),
+      ),
+    );
+  }
+}

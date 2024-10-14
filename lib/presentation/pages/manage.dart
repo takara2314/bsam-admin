@@ -16,6 +16,9 @@ import 'package:bsam_admin/domain/manager.dart';
 
 const defaultWantMarkCounts = 3;
 
+typedef OnPressedCancelPassing = void Function(String targetDeviceId, int nextMarkNo);
+typedef OnPressedGuideNextMark = void Function(String targetDeviceId, int nextMarkNo);
+
 class ManagePage extends HookConsumerWidget {
   const ManagePage({
     super.key
@@ -162,6 +165,20 @@ class ManageViewAfterReceivedInfo extends HookConsumerWidget {
             ManageAthletesArea(
               athleteInfos: gameState.athletes!,
               wantMarkCounts: wantMarkCounts,
+              onPressedCancelPassing: (deviceId, nextMarkNo) {
+                clientNotifier.manageCancelPassing(
+                  deviceId,
+                  nextMarkNo,
+                  wantMarkCounts
+                );
+              },
+              onPressedGuideNextMark: (deviceId, nextMarkNo) {
+                clientNotifier.managePassing(
+                  deviceId,
+                  nextMarkNo,
+                  wantMarkCounts
+                );
+              },
             ),
           ],
         )
@@ -294,10 +311,14 @@ class ManageMark extends StatelessWidget {
 class ManageAthletesArea extends HookConsumerWidget {
   final List<AthleteInfo> athleteInfos;
   final int wantMarkCounts;
+  final OnPressedCancelPassing onPressedCancelPassing;
+  final OnPressedGuideNextMark onPressedGuideNextMark;
 
   const ManageAthletesArea({
     required this.athleteInfos,
     required this.wantMarkCounts,
+    required this.onPressedCancelPassing,
+    required this.onPressedGuideNextMark,
     super.key
   });
 
@@ -314,6 +335,8 @@ class ManageAthletesArea extends HookConsumerWidget {
             ManageAthlete(
               athleteInfo: info,
               wantMarkCounts: wantMarkCounts,
+              onPressedCancelPassing: onPressedCancelPassing,
+              onPressedGuideNextMark: onPressedGuideNextMark,
             )
         ]
       )
@@ -324,10 +347,14 @@ class ManageAthletesArea extends HookConsumerWidget {
 class ManageAthlete extends StatelessWidget {
   final AthleteInfo athleteInfo;
   final int wantMarkCounts;
+  final OnPressedCancelPassing onPressedCancelPassing;
+  final OnPressedGuideNextMark onPressedGuideNextMark;
 
   const ManageAthlete({
     required this.athleteInfo,
     required this.wantMarkCounts,
+    required this.onPressedCancelPassing,
+    required this.onPressedGuideNextMark,
     super.key
   });
 
@@ -355,7 +382,7 @@ class ManageAthlete extends StatelessWidget {
         left: 20,
         right: 20,
         top: 15,
-        bottom: 15,
+        bottom: 5,
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -378,6 +405,12 @@ class ManageAthlete extends StatelessWidget {
                   ),
                   ManageGeolocationDetail(
                     markGeolocation: geolocation
+                  ),
+                  ManageAthleteNextMark(
+                    deviceId: athleteInfo.deviceId,
+                    nextMarkNo: athleteInfo.nextMarkNo,
+                    onPressedCancelPassing: onPressedCancelPassing,
+                    onPressedGuideNextMark: onPressedGuideNextMark,
                   )
               ]
             )
@@ -477,6 +510,45 @@ class ManageAthleteNextMarkBudge extends StatelessWidget {
         '$markNameマークに案内中',
         color: primaryColor,
       ),
+    );
+  }
+}
+
+class ManageAthleteNextMark extends StatelessWidget {
+  final String deviceId;
+  final int nextMarkNo;
+  final OnPressedCancelPassing onPressedCancelPassing;
+  final OnPressedGuideNextMark onPressedGuideNextMark;
+
+  const ManageAthleteNextMark({
+    required this.deviceId,
+    required this.nextMarkNo,
+    required this.onPressedCancelPassing,
+    required this.onPressedGuideNextMark,
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TertiaryButton(
+            label: '通過取り消し',
+            onPressed: () {
+              onPressedCancelPassing(deviceId, nextMarkNo);
+            }
+          ),
+          TertiaryButton(
+            label: '次のマークを案内',
+            onPressed: () {
+              onPressedGuideNextMark(deviceId, nextMarkNo);
+            }
+          ),
+        ],
+      )
     );
   }
 }

@@ -5,6 +5,10 @@ int calcNextMarkNo(int wantMarkCounts, int passedMarkNo) {
   return passedMarkNo + 1 > wantMarkCounts ? 1 : passedMarkNo + 1;
 }
 
+int calcPrevMarkNo(int wantMarkCounts, int passedMarkNo) {
+  return passedMarkNo - 1 < 1 ? wantMarkCounts : passedMarkNo - 1;
+}
+
 bool isBadAccuracyMeter(double accuracyMeter) {
   return accuracyMeter > badAccuracyMeterThreshold;
 }

@@ -38,7 +38,9 @@ class GameClientNotifier extends StateNotifier<GameClientState> {
   void connect() => engine.ws.connect();
   void disconnect() => engine.ws.disconnect();
   void manageRaceStatus(bool started) => engine.manageRaceStatus(started);
-  void manageNextMark(String targetDeviceId, int nextMarkNo) => engine.manageNextMark(targetDeviceId, nextMarkNo);
+  void manageCancelPassing(String targetDeviceId, int nowNextMarkNo, int wantMarkCounts) => engine.manageCancelPassing(targetDeviceId, nowNextMarkNo, wantMarkCounts);
+  void managePassing(String targetDeviceId, int nowNextMarkNo, int wantMarkCounts) => engine.managePassing(targetDeviceId, nowNextMarkNo, wantMarkCounts);
+  void manageNextMark(String targetDeviceId, int nowNextMarkNo) => engine.manageNextMark(targetDeviceId, nowNextMarkNo);
 
   // ステートのgetterとsetter
   bool get connected => state.connected;
