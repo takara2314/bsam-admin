@@ -159,6 +159,9 @@ class ManageViewAfterReceivedInfo extends HookConsumerWidget {
               wantMarkCounts: wantMarkCounts,
               markGeolocations: gameState.marks!,
             ),
+            ManageAthletesArea(
+              athleteInfos: gameState.athletes!,
+            ),
           ],
         )
       )
@@ -257,8 +260,8 @@ class ManageMark extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.only(
-        top: 10,
-        bottom: 10,
+        top: 15,
+        bottom: 15,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -275,8 +278,102 @@ class ManageMark extends StatelessWidget {
                   '$markNameマーク',
                   textAlign: TextAlign.left,
                 ),
-                ManageMarkDetail(
+                ManageGeolocationDetail(
                   markGeolocation: markGeolocation
+                )
+              ]
+            )
+          )
+        ],
+      )
+    );
+  }
+}
+
+class ManageAthletesArea extends HookConsumerWidget {
+  final List<AthleteInfo> athleteInfos;
+
+  const ManageAthletesArea({
+    required this.athleteInfos,
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      margin: const EdgeInsets.only(
+        top: 30,
+        bottom: 50,
+      ),
+      child: Column(
+        children: [
+          for (var info in athleteInfos)
+            ManageAthlete(
+              athleteInfo: info,
+            )
+        ]
+      )
+    );
+  }
+}
+
+class ManageAthlete extends StatelessWidget {
+  final AthleteInfo athleteInfo;
+
+  const ManageAthlete({
+    required this.athleteInfo,
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final athleteNo = retrieveAthleteNo(athleteInfo.deviceId);
+    final geolocation = MarkGeolocation(
+      markNo: 0,
+      stored: true,
+      latitude: athleteInfo.latitude,
+      longitude: athleteInfo.longitude,
+      accuracyMeter: athleteInfo.accuracyMeter,
+      heading: athleteInfo.heading,
+      recordedAt: athleteInfo.recordedAt,
+    );
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(
+        left: 30,
+        right: 30,
+        bottom: 10,
+      ),
+      padding: const EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 15,
+        bottom: 15,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(
+          Radius.circular(16),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          // ManageMarkNoIcon(
+          //   markNo: markNo,
+          //   isActive: markGeolocation.stored,
+          // ),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                Heading(
+                  '$athleteNo番艇',
+                  textAlign: TextAlign.left,
+                ),
+                ManageGeolocationDetail(
+                  markGeolocation: geolocation
                 )
               ]
             )
@@ -320,10 +417,10 @@ class ManageMarkNoIcon extends StatelessWidget {
   }
 }
 
-class ManageMarkDetail extends StatelessWidget {
+class ManageGeolocationDetail extends StatelessWidget {
   final MarkGeolocation markGeolocation;
 
-  const ManageMarkDetail({
+  const ManageGeolocationDetail({
     required this.markGeolocation,
     super.key
   });
@@ -341,10 +438,10 @@ class ManageMarkDetail extends StatelessWidget {
       children: [
         TableRow(
           children: [
-            const ManageMarkDetailLabelCell(
+            const ManageGeolocationDetailLabelCell(
               label: '位置情報の精度'
             ),
-            ManageMarkDetailValueCell(
+            ManageGeolocationDetailValueCell(
               value: '${accuracyMeterForLabel}m',
               isWarning: isBadAccuracyMeter(markGeolocation.accuracyMeter)
             ),
@@ -352,10 +449,10 @@ class ManageMarkDetail extends StatelessWidget {
         ),
         TableRow(
           children: [
-            const ManageMarkDetailLabelCell(
+            const ManageGeolocationDetailLabelCell(
               label: '最終計測'
             ),
-            ManageMarkDetailValueCell(
+            ManageGeolocationDetailValueCell(
               value: '$elapsedTime前',
               isWarning: isBadElapsedTimeHour(markGeolocation.recordedAt)
             ),
@@ -366,10 +463,10 @@ class ManageMarkDetail extends StatelessWidget {
   }
 }
 
-class ManageMarkDetailLabelCell extends StatelessWidget {
+class ManageGeolocationDetailLabelCell extends StatelessWidget {
   final String label;
 
-  const ManageMarkDetailLabelCell({
+  const ManageGeolocationDetailLabelCell({
     required this.label,
     super.key
   });
@@ -383,11 +480,11 @@ class ManageMarkDetailLabelCell extends StatelessWidget {
   }
 }
 
-class ManageMarkDetailValueCell extends StatelessWidget {
+class ManageGeolocationDetailValueCell extends StatelessWidget {
   final String value;
   final bool isWarning;
 
-  const ManageMarkDetailValueCell({
+  const ManageGeolocationDetailValueCell({
     required this.value,
     required this.isWarning,
     super.key
@@ -403,7 +500,3 @@ class ManageMarkDetailValueCell extends StatelessWidget {
     );
   }
 }
-
-// class ManageAthletesArea extends HookConsumerWidget {
-//   const ManageAthletesArea({super.key});
-// }

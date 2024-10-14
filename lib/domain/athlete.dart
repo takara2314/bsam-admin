@@ -1,5 +1,14 @@
 const maxAthleteNo = 10;
 
+int retrieveAthleteNo(String deviceId) {
+  // "athlete$num" なら num の部分を取得
+  final match = RegExp(r'athlete(\d+)').firstMatch(deviceId);
+  if (match == null) {
+    return 0;
+  }
+  return int.parse(match.group(1)!);
+}
+
 // 選手の情報を表すクラス
 class AthleteInfo {
   final String deviceId;
