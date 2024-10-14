@@ -1,5 +1,16 @@
+const badAccuracyMeterThreshold = 10;
+const badElapsedTimeHourThreshold = 12;
+
 int calcNextMarkNo(int wantMarkCounts, int passedMarkNo) {
   return passedMarkNo + 1 > wantMarkCounts ? 1 : passedMarkNo + 1;
+}
+
+bool isBadAccuracyMeter(double accuracyMeter) {
+  return accuracyMeter > badAccuracyMeterThreshold;
+}
+
+bool isBadElapsedTimeHour(DateTime recordedAt) {
+  return DateTime.now().difference(recordedAt).inHours > badElapsedTimeHourThreshold;
 }
 
 // マークの位置情報を表すクラス

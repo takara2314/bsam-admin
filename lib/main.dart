@@ -26,6 +26,7 @@ const bodyTextColor = Color.fromARGB(255, 62, 62, 62);
 const primaryColor = Color.fromARGB(255, 149, 22, 0);
 const secondaryColor = Color.fromARGB(255, 255, 84, 79);
 const tertiaryColor = Color.fromARGB(255, 124, 124, 124);
+final warningColor = Colors.orange[900]!;
 
 const backgroundColor = Color.fromARGB(255, 242, 242, 242);
 const themeBackgroundColor = Color.fromARGB(255, 255, 196, 192);
