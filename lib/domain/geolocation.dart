@@ -1,5 +1,5 @@
-bool isValidLatLng(double latitude, double longitude) {
-  if (latitude == 0.0 || longitude == 0.0) {
+bool isValidLatLng(double lat, double lng) {
+  if (lat == 0.0 || lng == 0.0) {
     return false;
   }
   return true;
