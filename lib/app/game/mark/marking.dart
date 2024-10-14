@@ -1,4 +1,5 @@
 import 'package:bsam_admin/app/game/mark/post.dart';
+import 'package:bsam_admin/utils/double.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -49,9 +50,13 @@ UseMarking useMarking(String token, int markNo) {
       ),
     );
 
+    final sendingIntervalSecondForLabel = doubleToString(
+      sendingIntervalMilliseconds / 1000,
+    );
+
     await FlutterForegroundTask.startService(
       notificationTitle: 'マークの位置を送信中',
-      notificationText: '${sendingIntervalMilliseconds / 1000}秒に1回、B-SAMのサーバーに位置情報を送信します',
+      notificationText: '$sendingIntervalSecondForLabel秒に1回、B-SAMのサーバーに位置情報を送信します',
       callback: startCallback,
     );
 
@@ -131,10 +136,12 @@ class LocationTaskHandler extends TaskHandler {
     }
 
     final locationData = await getLocationData();
-    await postGeolocationData(locationData);
-    FlutterForegroundTask.sendDataToMain({
-      "is_location_sent": true,
-    });
+    postGeolocationData(locationData)
+      .then((_) {
+        FlutterForegroundTask.sendDataToMain({
+          "is_location_sent": true,
+        });
+      });
   }
 
   Future<Map<String, double>> getLocationData() async {
@@ -180,6 +187,7 @@ class LocationTaskHandler extends TaskHandler {
       );
     } catch (e) {
       debugPrint('Failed to send location information: $e');
+      rethrow;
     }
   }
 

@@ -67,6 +67,8 @@ Future<GeolocationPostResponse> postGeolocation({
     } else {
       throw Exception('Failed to send location information: ${response.statusCode}');
     }
+  } catch (e) {
+    rethrow;
   } finally {
     client.close();
   }
