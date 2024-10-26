@@ -589,7 +589,7 @@ class ManageGeolocationDetailTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accuracyMeterForLabel = markGeolocation.accuracyMeter.toStringAsFixed(2);
-    final elapsedTime = formatElapsedTimeInJapanese(markGeolocation.recordedAt);
+    final elapsedTime = formatElapsedTimeInJapaneseNotNegative(markGeolocation.recordedAt);
 
     return Table(
       columnWidths: const {

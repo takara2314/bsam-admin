@@ -8,11 +8,7 @@ bool isToday(DateTime date) {
   );
 }
 
-// 現在時刻からどれぐらい経過したか返す関数
-String formatElapsedTimeInJapanese(DateTime date) {
-  final now = DateTime.now();
-  final difference = now.difference(date);
-
+String _formatElapsedTime(Duration difference) {
   // 1分以内の場合は、 "n秒" と返す (nは整数)
   if (difference.inSeconds < 60) {
     return '${difference.inSeconds}秒';
@@ -45,4 +41,21 @@ String formatElapsedTimeInJapanese(DateTime date) {
 
   // それ以外の場合は、 "n年" と返す (nは整数)
   return '${(difference.inDays / 365).floor()}年';
+}
+
+// 現在時刻からどれぐらい経過したか返す関数
+String formatElapsedTimeInJapanese(DateTime date) {
+  final now = DateTime.now();
+  final difference = now.difference(date);
+  return _formatElapsedTime(difference);
+}
+
+// 現在時刻からどれぐらい経過したか返す関数 (最小は0秒前)
+String formatElapsedTimeInJapaneseNotNegative(DateTime date) {
+  final now = DateTime.now();
+  final difference = now.difference(date);
+  if (difference.inSeconds < 0) {
+    return '0秒';
+  }
+  return _formatElapsedTime(difference);
 }
