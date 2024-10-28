@@ -86,7 +86,8 @@ class Heading extends StatelessWidget {
         color: color ?? bodyTextColor,
         fontWeight: fontWeight ?? FontWeight.bold,
         fontSize: fontSize ?? bodyHeadingSize
-      )
+      ),
+      textAlign: textAlign
     );
   }
 }
