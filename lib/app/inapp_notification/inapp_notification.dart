@@ -2,6 +2,8 @@ import 'package:bsam_admin/main.dart';
 import 'package:bsam_admin/presentation/widgets/text.dart';
 import 'package:flutter/material.dart';
 
+const normalColor = Color.fromARGB(255, 79, 150, 255);
+
 void hideNotification(BuildContext context) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
 }
@@ -17,7 +19,7 @@ void showNotificationNormal(
   ScaffoldMessenger.of(context).showSnackBar(
     NotificationSnackBar(
       message,
-      secondaryColor,
+      normalColor,
       durationSec,
     ),
   );
