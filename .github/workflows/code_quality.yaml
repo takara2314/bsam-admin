@@ -5,26 +5,26 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
-          deno-version: "1.38.0"
+          deno-version: "2.0.3"
 
-      - name: Create dummy .env
+      - name: Create secret file
         run: >
-            deno run --allow-write=. .github/createEnviron.ts
-            --BSAM_SERVER_URL wss://example.com
-            --BSAM_SERVER_TOKEN secret
+            deno run --allow-read=. --allow-write=. .github/createSecret.ts
+            --FIREBASE_ANDROID_API_KEY ${{ secrets.FIREBASE_ANDROID_API_KEY }}
+            --FIREBASE_IOS_API_KEY ${{ secrets.FIREBASE_IOS_API_KEY }}
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2.10.0
+        uses: subosito/flutter-action@v2.16.0
         with:
-          flutter-version: "3.10.4"
+          flutter-version: "3.24.3"
 
       - name: Install packages
         run: flutter pub get

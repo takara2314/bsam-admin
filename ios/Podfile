@@ -1,3 +1,7 @@
+use_frameworks!
+system('rm -rf .symlinks')
+system('mkdir -p .symlinks/plugins')
+
 # Uncomment this line to define a global platform for your project
 platform :ios, '13.0'
 

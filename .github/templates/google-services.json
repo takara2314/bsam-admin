@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "716132955877",
+    "project_id": "bsam-stg",
+    "storage_bucket": "bsam-stg.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716132955877:android:020f82ec2d35c53cb5060c",
+        "android_client_info": {
+          "package_name": "app.bsam.athlete"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "${FIREBASE_ANDROID_API_KEY}"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
