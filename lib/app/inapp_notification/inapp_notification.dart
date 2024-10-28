@@ -1,4 +1,3 @@
-import 'package:bsam_admin/main.dart';
 import 'package:bsam_admin/presentation/widgets/text.dart';
 import 'package:flutter/material.dart';
 
