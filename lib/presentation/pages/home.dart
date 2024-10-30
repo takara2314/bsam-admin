@@ -38,7 +38,13 @@ class HomePage extends HookConsumerWidget {
       body: Center(
         child: Column(
           children: [
-            Heading(raceDetail.value?.name ?? '読み込み中...'),
+            Padding(
+              padding: const EdgeInsets.only(left: 30, right: 30),
+              child: Heading(
+                raceDetail.value?.name ?? '読み込み中...',
+                textAlign: TextAlign.center
+              ),
+            ),
             MarkingStartButtonArea(
               onPressed: (int markNo) {
                 context.push('$markPagePathBase$markNo');
