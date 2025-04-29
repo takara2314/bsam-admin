@@ -50,3 +50,7 @@ app.*.map.json
 # Firebase configuration files
 google-services.json
 GoogleService-Info.plist
+
+# Keystore
+bsam-key.jks
+key.properties
