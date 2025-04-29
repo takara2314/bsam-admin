@@ -46,6 +46,10 @@ cp .env.sample .env
 - Android: `google-services.json` → `android/app/google-services.json` に配置
 - iOS: `GoogleService-Info.plist` → `ios/Runner/GoogleService-Info.plist` に配置
 
+4. キーを組織の共有フォルダーからダウンロードし、`android/bsam-key.jks` に配置してください。
+
+5. キーのプロパティを組織の共有フォルダーからダウンロードし、`android/key.properties` に配置してください。
+
 ## ライセンス
 このプロジェクトは [GPL-3.0](./LICENSE) ライセンスの下で公開しています。
 
