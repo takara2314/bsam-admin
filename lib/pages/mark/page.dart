@@ -9,7 +9,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:battery_plus/battery_plus.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:bsam_admin/providers.dart';
 import 'package:bsam_admin/pages/mark/pop_dialog.dart';
@@ -71,7 +71,7 @@ class _Mark extends ConsumerState<Mark> {
     super.initState();
 
     // Screen lock
-    Wakelock.enable();
+    WakelockPlus.enable();
 
     _sendPosition(null);
     _timerSendPos = Timer.periodic(
@@ -100,7 +100,7 @@ class _Mark extends ConsumerState<Mark> {
     _timerBattery.cancel();
     _timerAutoMapMove.cancel();
     _channel.sink.close(status.goingAway);
-    Wakelock.disable();
+    WakelockPlus.disable();
     super.dispose();
   }
 

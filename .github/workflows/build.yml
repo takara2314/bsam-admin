@@ -1,41 +1,40 @@
-name: Build
+name: Build Apps
 
 on:
-    push:
-      branches:
-        - main
+  push:
+    branches:
+      - main
 
 jobs:
-  android:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  build-android-app:
+    name: Build Android App
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
-      - name: Setup Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: "1.38.0"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Create .env
-        run: >
-            deno run --allow-write=. .github/createEnviron.ts
-            --BSAM_SERVER_URL ${{ secrets.BSAM_SERVER_URL }}
-            --BSAM_SERVER_TOKEN ${{ secrets.BSAM_SERVER_TOKEN }}
+        run: echo ${{ secrets.DOT_ENV_BASE64 }} | base64 --decode > .env
+
+      - name: Create google-services.json
+        run: echo ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }} | base64 --decode > ./android/app/google-services.json
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2.10.0
+        uses: subosito/flutter-action@v2.19.0
         with:
-          flutter-version: "3.10.4"
+          channel: stable
+          flutter-version: 3.29.3
 
       - name: Install packages
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release
+        run: export $$(cat .env | grep -v '^#' | xargs) && flutter build apk --release
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
