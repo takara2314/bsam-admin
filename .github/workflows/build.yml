@@ -31,7 +31,13 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: export $$(cat .env | grep -v '^#' | xargs) && flutter build apk --release
+        run: |
+          while IFS= read -r line; do
+            if [[ $line != \#* ]]; then
+              export "$line"
+            fi
+          done < .env
+          flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
