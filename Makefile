@@ -84,3 +84,18 @@ encode-base64-google-services-json:
 .PHONY: encode-base64-google-service-info-plist
 encode-base64-google-service-info-plist:
 	cat ios/Runner/GoogleService-Info.plist | base64 -w 0
+
+# bsam-key.jks をBase64でエンコード
+.PHONY: encode-base64-bsam-key-jks
+encode-base64-bsam-key-jks:
+	cat android/bsam-key.jks | base64 -w 0
+
+# key.properties をBase64でエンコード
+.PHONY: encode-base64-key-properties
+encode-base64-key-properties:
+	cat android/key.properties | base64 -w 0
+
+# bsam-key.jks の確認
+.PHONY: check-bsam-key
+check-bsam-key:
+	keytool -list -v -keystore android/bsam-key.jks
