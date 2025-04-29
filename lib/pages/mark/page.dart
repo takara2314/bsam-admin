@@ -20,11 +20,11 @@ import 'package:bsam_admin/pages/mark/sending_area.dart';
 
 class Mark extends ConsumerStatefulWidget {
   const Mark({
-    Key? key,
+    super.key,
     required this.assocId,
     required this.userId,
     required this.markNo
-  }) : super(key: key);
+  });
 
   final String assocId;
   final String userId;
@@ -146,7 +146,9 @@ class _Mark extends ConsumerState<Mark> {
 
   _getPosition() async {
     Position pos = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.best,
+      ),
     );
 
     if (pos.accuracy > 30.0 || !mounted) {
@@ -276,10 +278,12 @@ class _Mark extends ConsumerState<Mark> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        isPopDialog(context);
-        return false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (!didPop) {
+          isPopDialog(context);
+        }
       },
       child: Scaffold(
         appBar: const MarkAppBar(),

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class RaceNameArea extends StatelessWidget {
   const RaceNameArea({
-    Key? key,
+    super.key,
     required this.raceName
-  }) : super(key: key);
+  });
 
   final String raceName;
 

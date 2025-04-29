@@ -5,10 +5,10 @@ import 'package:bsam_admin/components/battery_and_acc.dart';
 
 class MarksArea extends StatelessWidget {
   const MarksArea({
-    Key? key,
+    super.key,
     required this.markNames,
     required this.marks
-  }) : super(key: key);
+  });
 
   final Map<int, List<String>> markNames;
   final List<Mark> marks;
@@ -40,10 +40,10 @@ class MarksArea extends StatelessWidget {
 
 class MarkItem extends StatelessWidget {
   const MarkItem({
-    Key? key,
+    super.key,
     required this.markNames,
     required this.mark
-  }) : super(key: key);
+  });
 
   final Map<int, List<String>> markNames;
   final Mark mark;

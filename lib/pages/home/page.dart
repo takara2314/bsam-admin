@@ -13,7 +13,7 @@ import 'package:bsam_admin/pages/home/mark_button.dart';
 import 'package:bsam_admin/pages/home/manage_button.dart';
 
 class Home extends ConsumerStatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
 
   @override
   ConsumerState<Home> createState() => _Home();

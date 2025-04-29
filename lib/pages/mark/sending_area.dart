@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class SendingArea extends StatelessWidget {
   const SendingArea({
-    Key? key,
+    super.key,
     required this.markNo,
     required this.markNames,
     required this.receivedInfoServer,
     required this.sentPosition
-  }) : super(key: key);
+  });
 
   final int markNo;
   final Map<int, List<String>> markNames;

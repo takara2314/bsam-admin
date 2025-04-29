@@ -4,9 +4,9 @@ import 'package:bsam_admin/pages/manage/page.dart';
 
 class ManageButton extends StatelessWidget {
   const ManageButton({
-    Key? key,
+    super.key,
     required this.assocId
-  }) : super(key: key);
+  });
 
   final String? assocId;
 
