@@ -31,13 +31,9 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: |
-          while IFS= read -r line; do
-            if [[ $line != \#* ]]; then
-              export "$line"
-            fi
-          done < .env
-          flutter build apk --release
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
