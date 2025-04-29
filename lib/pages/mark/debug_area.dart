@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class DebugArea extends StatelessWidget {
   const DebugArea({
-    Key? key,
+    super.key,
     required this.manual,
     required this.latitude,
     required this.longitude,
     required this.accuracy
-  }) : super(key: key);
+  });
 
   final bool manual;
   final double latitude;

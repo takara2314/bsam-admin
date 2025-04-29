@@ -4,8 +4,8 @@ import 'package:bsam_admin/pages/mark/pop_dialog.dart';
 
 class MarkAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MarkAppBar({
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

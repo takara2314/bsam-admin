@@ -4,7 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapArea extends StatelessWidget {
   const MapArea({
-    Key? key,
+    super.key,
     required this.latitude,
     required this.longitude,
     required this.accuracy,
@@ -16,7 +16,7 @@ class MapArea extends StatelessWidget {
     required this.onCameraMoveStarted,
     required this.changeToManual,
     required this.changeToAuto
-  }) : super(key: key);
+  });
 
   final double latitude;
   final double longitude;
@@ -62,7 +62,7 @@ class MapArea extends StatelessWidget {
 
 class MapView extends StatelessWidget {
   const MapView({
-    Key? key,
+    super.key,
     required this.latitude,
     required this.longitude,
     required this.autoMoveMap,
@@ -71,7 +71,7 @@ class MapView extends StatelessWidget {
     required this.onCameraMove,
     required this.onCameraMoveStarted,
     required this.changeToManual
-  }) : super(key: key);
+  });
 
   final double latitude;
   final double longitude;

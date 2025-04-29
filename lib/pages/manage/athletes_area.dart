@@ -6,12 +6,12 @@ import 'package:bsam_admin/utils/name.dart';
 
 class AthletesArea extends StatelessWidget {
   const AthletesArea({
-    Key? key,
+    super.key,
     required this.markNames,
     required this.athletes,
     required this.forcePassed,
     required this.cancelPassed
-  }) : super(key: key);
+  });
 
   final Map<int, List<String>> markNames;
   final List<Athlete> athletes;
@@ -42,12 +42,12 @@ class AthletesArea extends StatelessWidget {
 
 class AthleteItem extends StatelessWidget {
   const AthleteItem({
-    Key? key,
+    super.key,
     required this.markNames,
     required this.athlete,
     required this.forcePassed,
     required this.cancelPassed
-  }) : super(key: key);
+  });
 
   final Map<int, List<String>> markNames;
   final Athlete athlete;
@@ -146,10 +146,10 @@ class AthleteItem extends StatelessWidget {
 
 class AthleteInfo extends StatelessWidget {
   const AthleteInfo({
-    Key? key,
+    super.key,
     required this.markNames,
     required this.athlete
-  }) : super(key: key);
+  });
 
   final Map<int, List<String>> markNames;
   final Athlete athlete;
@@ -182,11 +182,11 @@ class AthleteInfo extends StatelessWidget {
 
 class AthleteForceManageArea extends StatelessWidget {
   const AthleteForceManageArea({
-    Key? key,
+    super.key,
     required this.markNames,
     required this.athlete,
     required this.forcePassed
-  }) : super(key: key);
+  });
 
   final Map<int, List<String>> markNames;
   final Athlete athlete;

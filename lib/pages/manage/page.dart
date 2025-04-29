@@ -17,7 +17,7 @@ import 'package:bsam_admin/pages/manage/start_stop_button.dart';
 import 'package:bsam_admin/utils/random.dart';
 
 class Manage extends ConsumerStatefulWidget {
-  const Manage({Key? key, required this.assocId}) : super(key: key);
+  const Manage({super.key, required this.assocId});
 
   final String assocId;
 

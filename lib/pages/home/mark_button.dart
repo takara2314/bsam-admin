@@ -5,10 +5,10 @@ import 'package:bsam_admin/pages/mark/page.dart';
 
 class MarkButton extends StatelessWidget {
   const MarkButton({
-    Key? key,
+    super.key,
     required this.assocId,
     required this.mark
-  }) : super(key: key);
+  });
 
   final String? assocId;
   final User mark;

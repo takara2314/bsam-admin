@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class BatteryAndAcc extends StatelessWidget {
   const BatteryAndAcc({
-    Key? key,
+    super.key,
     required this.batteryLevel,
     required this.acc
-  }) : super(key: key);
+  });
 
   final int batteryLevel;
   final double acc;

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class StartStopButton extends StatelessWidget {
   const StartStopButton({
-    Key? key,
+    super.key,
     required this.started,
     required this.startRace
-  }) : super(key: key);
+  });
 
   final bool started;
   final Function(bool) startRace;

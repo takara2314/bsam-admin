@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class PopAppBar extends StatelessWidget implements PreferredSizeWidget {
   const PopAppBar({
-    Key? key,
+    super.key,
     required this.pageName
-  }) : super(key: key);
+  });
 
   final String pageName;
 

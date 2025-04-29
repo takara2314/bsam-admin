@@ -4,9 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({
-    Key? key,
+    super.key,
     required this.assocName
-  }) : super(key: key);
+  });
 
   final String assocName;
 

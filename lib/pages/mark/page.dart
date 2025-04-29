@@ -9,7 +9,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:battery_plus/battery_plus.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:bsam_admin/providers.dart';
 import 'package:bsam_admin/pages/mark/pop_dialog.dart';
@@ -20,11 +20,11 @@ import 'package:bsam_admin/pages/mark/sending_area.dart';
 
 class Mark extends ConsumerStatefulWidget {
   const Mark({
-    Key? key,
+    super.key,
     required this.assocId,
     required this.userId,
     required this.markNo
-  }) : super(key: key);
+  });
 
   final String assocId;
   final String userId;
@@ -71,7 +71,7 @@ class _Mark extends ConsumerState<Mark> {
     super.initState();
 
     // Screen lock
-    Wakelock.enable();
+    WakelockPlus.enable();
 
     _sendPosition(null);
     _timerSendPos = Timer.periodic(
@@ -100,7 +100,7 @@ class _Mark extends ConsumerState<Mark> {
     _timerBattery.cancel();
     _timerAutoMapMove.cancel();
     _channel.sink.close(status.goingAway);
-    Wakelock.disable();
+    WakelockPlus.disable();
     super.dispose();
   }
 
@@ -146,7 +146,9 @@ class _Mark extends ConsumerState<Mark> {
 
   _getPosition() async {
     Position pos = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.best,
+      ),
     );
 
     if (pos.accuracy > 30.0 || !mounted) {
@@ -276,10 +278,12 @@ class _Mark extends ConsumerState<Mark> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        isPopDialog(context);
-        return false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (!didPop) {
+          isPopDialog(context);
+        }
       },
       child: Scaffold(
         appBar: const MarkAppBar(),
