@@ -8,6 +8,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 
+import 'package:bsam_admin/constants/app_constants.dart';
 import 'package:bsam_admin/models/athlete.dart';
 import 'package:bsam_admin/models/mark.dart';
 import 'package:bsam_admin/models/live_msg.dart';
@@ -26,14 +27,6 @@ class Manage extends ConsumerStatefulWidget {
 }
 
 class _Manage extends ConsumerState<Manage> {
-  static const markNum = 3;
-
-  static const markNames = {
-    1: ['上', 'かみ', '①'],
-    2: ['サイド', 'さいど', '②'],
-    3: ['下', 'しも', '③']
-  };
-
   late WebSocketChannel _channel;
 
   bool? _started;
@@ -140,13 +133,13 @@ class _Manage extends ConsumerState<Manage> {
   }
 
   _forcePassed(String userId, int nextMarkNo) {
-    nextMarkNo = nextMarkNo % markNum + 1;
+    nextMarkNo = nextMarkNo % AppConstants.markNum + 1;
 
     _setNextMarkNo(userId, nextMarkNo);
   }
 
   _cancelPassed(String userId, int nextMarkNo) {
-    int previousMarkNo = nextMarkNo - 1 == 0 ? markNum : nextMarkNo - 1;
+    int previousMarkNo = nextMarkNo - 1 == 0 ? AppConstants.markNum : nextMarkNo - 1;
 
     _setNextMarkNo(userId, previousMarkNo);
   }
@@ -178,11 +171,11 @@ class _Manage extends ConsumerState<Manage> {
                     startRace: _startRace
                   ),
                   MarksArea(
-                    markNames: markNames,
+                    markNames: AppConstants.standardMarkNames,
                     marks: _marks
                   ),
                   AthletesArea(
-                    markNames: markNames,
+                    markNames: AppConstants.standardMarkNames,
                     athletes: _athletes,
                     forcePassed: _forcePassed,
                     cancelPassed: _cancelPassed

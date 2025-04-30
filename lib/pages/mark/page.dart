@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import 'package:bsam_admin/constants/app_constants.dart';
 import 'package:bsam_admin/providers.dart';
 import 'package:bsam_admin/pages/mark/pop_dialog.dart';
 import 'package:bsam_admin/pages/mark/app_bar.dart';
@@ -35,12 +36,6 @@ class Mark extends ConsumerStatefulWidget {
 }
 
 class _Mark extends ConsumerState<Mark> {
-  static const markNames = {
-    1: ['上', 'かみ', '①'],
-    2: ['サイド', 'さいど', '②'],
-    3: ['下', 'しも', '③']
-  };
-
   late WebSocketChannel _channel;
 
   late Timer _timerSendPos;
@@ -75,13 +70,13 @@ class _Mark extends ConsumerState<Mark> {
 
     _sendPosition(null);
     _timerSendPos = Timer.periodic(
-      const Duration(seconds: 1),
+      Duration(milliseconds: AppConstants.locationUpdateInterval),
       _sendPosition
     );
 
     _sendBattery(null);
     _timerBattery = Timer.periodic(
-      const Duration(seconds: 10),
+      Duration(milliseconds: AppConstants.batteryUpdateInterval),
       _sendBattery
     );
 
@@ -151,7 +146,7 @@ class _Mark extends ConsumerState<Mark> {
       ),
     );
 
-    if (pos.accuracy > 30.0 || !mounted) {
+    if (pos.accuracy > AppConstants.locationAccuracyThreshold || !mounted) {
       return;
     }
 
@@ -293,7 +288,7 @@ class _Mark extends ConsumerState<Mark> {
             child: Column(
               children: [
                 SendingArea(
-                  markNames: markNames,
+                  markNames: AppConstants.standardMarkNames,
                   markNo: widget.markNo,
                   receivedInfoServer: _receivedInfoServer,
                   sentPosition: _sentPosition,
