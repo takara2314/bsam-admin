@@ -2,6 +2,7 @@ import 'package:bsam_admin/components/pop_app_bar.dart';
 import 'package:bsam_admin/pages/manage/marks_area.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:web_socket_channel/io.dart';
@@ -28,6 +29,9 @@ class Manage extends ConsumerStatefulWidget {
 
 class _Manage extends ConsumerState<Manage> {
   late WebSocketChannel _channel;
+  bool _disposed = false;
+  bool _isConnected = false;
+  Timer? _reconnectTimer;
 
   bool? _started;
   List<Athlete> _athletes = [];
@@ -36,122 +40,191 @@ class _Manage extends ConsumerState<Manage> {
   @override
   void initState() {
     super.initState();
-
     _connectWs();
   }
 
   @override
   void dispose() {
-    _channel.sink.close(status.goingAway);
+    _disposed = true;
+    _closeWsConnection();
+    _reconnectTimer?.cancel();
     super.dispose();
   }
 
-  _connectWs() {
-    if (!mounted) {
+  void _closeWsConnection() {
+    try {
+      if (_isConnected) {
+        _channel.sink.close(status.normalClosure);
+        _isConnected = false;
+      }
+    } catch (e) {
+      debugPrint('WebSocket切断エラー: $e');
+    }
+  }
+
+  void _connectWs() {
+    if (_disposed || !mounted) {
       return;
     }
 
-    // Get server url
-    final serverUrl = ref.read(serverUrlProvider);
-
-    _channel = IOWebSocketChannel.connect(
-      Uri.parse('$serverUrl/racing/${widget.assocId}'),
-      pingInterval: const Duration(seconds: 1)
-    );
-
-    _channel.stream.listen(_readWsMsg,
-      onDone: () {
-        if (mounted) {
-          debugPrint('reconnect');
-          _connectWs();
-        }
-      }
-    );
-
-    final token = ref.read(jwtProvider);
+    // 接続中なら一度閉じる
+    _closeWsConnection();
 
     try {
-      _channel.sink.add(json.encode({
+      // Get server url
+      final serverUrl = ref.read(serverUrlProvider);
+
+      _channel = IOWebSocketChannel.connect(
+        Uri.parse('$serverUrl/racing/${widget.assocId}'),
+        pingInterval: const Duration(seconds: 1)
+      );
+
+      _isConnected = true;
+
+      _channel.stream.listen(
+        (msg) {
+          _handleWsMessage(msg);
+        },
+        onDone: () {
+          _handleWsDisconnection();
+        },
+        onError: (error) {
+          debugPrint('WebSocketエラー: $error');
+          _handleWsDisconnection();
+        }
+      );
+
+      if (_disposed || !mounted) return;
+
+      final token = ref.read(jwtProvider);
+      _sendWsMessage({
         'type': 'auth',
         'token': token,
         'user_id': generateRandomStr(8),
         'role': 'manager'
-      }));
-    } catch (_) {}
-  }
-
-  _receiveStartRace(dynamic msg) {
-    // race status
-    if (!mounted){
-      return;
-    }
-
-    setState(() {
-      _started = msg['started'];
-    });
-  }
-
-  _receiveLive(LiveMsg msg) {
-    // live data
-    if (!mounted){
-      return;
-    }
-
-    setState(() {
-      _athletes = msg.athletes!;
-      _marks = msg.marks!;
-    });
-  }
-
-  _readWsMsg(dynamic msg) {
-    final body = json.decode(msg);
-
-    switch (body['type']) {
-    case 'start_race':
-      debugPrint('start_race');
-      _receiveStartRace(body);
-      break;
-
-    case 'live':
-      debugPrint('live');
-      _receiveLive(LiveMsg.fromJson(body));
-      break;
+      });
+    } catch (e) {
+      debugPrint('WebSocket接続エラー: $e');
+      _scheduleReconnect();
     }
   }
 
-  _startRace(bool started) {
+  void _handleWsDisconnection() {
+    if (_disposed) return;
+
+    _isConnected = false;
+    debugPrint('WebSocket切断: 再接続をスケジュール');
+    _scheduleReconnect();
+  }
+
+  void _scheduleReconnect() {
+    if (_disposed || !mounted) return;
+
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(
+      const Duration(seconds: AppConstants.wsReconnectInterval),
+      () {
+        if (!_disposed && mounted) {
+          debugPrint('WebSocket再接続試行');
+          _connectWs();
+        }
+      }
+    );
+  }
+
+  void _handleWsMessage(dynamic msg) {
+    if (_disposed || !mounted) return;
+
     try {
-      _channel.sink.add(json.encode({
-        'type': 'start',
-        'started': started
-      }));
-    } catch (_) {}
+      final body = json.decode(msg);
+
+      switch (body['type']) {
+        case 'start_race':
+          debugPrint('start_race');
+          _receiveStartRace(body);
+          break;
+
+        case 'live':
+          debugPrint('live');
+          _receiveLive(LiveMsg.fromJson(body));
+          break;
+      }
+    } catch (e) {
+      debugPrint('メッセージ処理エラー: $e');
+    }
+  }
+
+  void _sendWsMessage(Map<String, dynamic> message) {
+    if (_disposed || !mounted || !_isConnected) return;
+
+    try {
+      _channel.sink.add(json.encode(message));
+    } catch (e) {
+      debugPrint('メッセージ送信エラー: $e');
+      _handleWsDisconnection();
+    }
+  }
+
+  void _receiveStartRace(dynamic msg) {
+    if (_disposed || !mounted) return;
+
+    try {
+      setState(() {
+        _started = msg['started'];
+      });
+    } catch (e) {
+      debugPrint('スタート状態更新エラー: $e');
+    }
+  }
+
+  void _receiveLive(LiveMsg msg) {
+    if (_disposed || !mounted) return;
+
+    try {
+      setState(() {
+        _athletes = msg.athletes!;
+        _marks = msg.marks!;
+      });
+    } catch (e) {
+      debugPrint('ライブデータ更新エラー: $e');
+    }
+  }
+
+  void _startRace(bool started) {
+    if (_disposed || !mounted) return;
+
+    _sendWsMessage({
+      'type': 'start',
+      'started': started
+    });
 
     setState(() {
       _started = started;
     });
   }
 
-  _forcePassed(String userId, int nextMarkNo) {
-    nextMarkNo = nextMarkNo % AppConstants.markNum + 1;
+  void _forcePassed(String userId, int nextMarkNo) {
+    if (_disposed || !mounted) return;
 
+    nextMarkNo = nextMarkNo % AppConstants.markNum + 1;
     _setNextMarkNo(userId, nextMarkNo);
   }
 
-  _cancelPassed(String userId, int nextMarkNo) {
-    int previousMarkNo = nextMarkNo - 1 == 0 ? AppConstants.markNum : nextMarkNo - 1;
+  void _cancelPassed(String userId, int nextMarkNo) {
+    if (_disposed || !mounted) return;
 
+    int previousMarkNo = nextMarkNo - 1 == 0 ? AppConstants.markNum : nextMarkNo - 1;
     _setNextMarkNo(userId, previousMarkNo);
   }
 
-  _setNextMarkNo(String userId, int nextMarkNo) {
-    try {
-      _channel.sink.add(json.encode({
-        'type': 'set_next_mark_no',
-        'user_id': userId,
-        'next_mark_no': nextMarkNo
-      }));
-    } catch (_) {}
+  void _setNextMarkNo(String userId, int nextMarkNo) {
+    if (_disposed || !mounted) return;
+
+    _sendWsMessage({
+      'type': 'set_next_mark_no',
+      'user_id': userId,
+      'next_mark_no': nextMarkNo
+    });
   }
 
   @override

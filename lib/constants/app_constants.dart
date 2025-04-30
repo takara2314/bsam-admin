@@ -19,6 +19,9 @@ class AppConstants {
   static const int batteryUpdateInterval = 10000;
   static const int locationUpdateInterval = 1000;
 
+  // WebSocket再接続間隔（秒）
+  static const int wsReconnectInterval = 3;
+
   // 位置精度の閾値
   static const double locationAccuracyThreshold = 30.0;
 }
