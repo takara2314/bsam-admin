@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -27,6 +27,7 @@ class _Home extends ConsumerState<Home> {
   ];
 
   String? _assocId;
+  String _version = '';
 
   @override
   void initState() {
@@ -41,6 +42,7 @@ class _Home extends ConsumerState<Home> {
 
       _loadServerURL();
       _loadAssocInfo();
+      await _loadVersion();
     }();
   }
 
@@ -67,6 +69,13 @@ class _Home extends ConsumerState<Home> {
     });
   }
 
+  _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = packageInfo.version;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,7 +98,17 @@ class _Home extends ConsumerState<Home> {
                 ),
               ManageButton(
                 assocId: _assocId
-              )
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 50),
+                child: Text(
+                  'アプリバージョン: $_version',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey
+                  ),
+                ),
+              ),
             ]
           )
         )
