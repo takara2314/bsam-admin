@@ -97,6 +97,7 @@ class MapView extends StatelessWidget {
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
+            indoorViewEnabled: false,
             markers: mapMarkers,
             initialCameraPosition: CameraPosition(
               target: LatLng(latitude, longitude),
