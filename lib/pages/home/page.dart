@@ -92,10 +92,14 @@ class _Home extends ConsumerState<Home> {
               const RaceNameArea(
                 raceName: AppConstants.raceName
               ),
+              const SizedBox(height: 24.0),
               for (final mark in marks)
-                MarkButton(
-                  assocId: _assocId,
-                  mark: mark
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: MarkButton(
+                    assocId: _assocId,
+                    mark: mark
+                  ),
                 ),
               ManageButton(
                 assocId: _assocId
