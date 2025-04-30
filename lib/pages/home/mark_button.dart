@@ -15,21 +15,38 @@ class MarkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      child: Text(
-        '${mark.displayName}をおく'
-      ),
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => Mark(
-              assocId: assocId!,
-              userId: mark.id!,
-              markNo: mark.markNo!
-            )
+    final width = MediaQuery.of(context).size.width; // Get screen width
+
+    return SizedBox(
+      width: width * 0.9, // Set width to 90% of screen width
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red, // Use project's red color
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20) // Rounded corners
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 20) // Vertical padding
+        ),
+        child: Text(
+          '${mark.displayName}をおく',
+          style: const TextStyle( // Apply text style
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20
           )
-        );
-      }
+        ),
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => Mark(
+                assocId: assocId!,
+                userId: mark.id!,
+                markNo: mark.markNo!
+              )
+            )
+          );
+        }
+      ),
     );
   }
 }

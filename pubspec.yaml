@@ -47,7 +47,6 @@ dependencies:
   flutter_compass: ^0.8.0
   web_socket_channel: ^3.0.3
   wakelock_plus: ^1.1.4
-  flutter_tts: ^4.2.2
   battery_plus: ^6.2.1
   async_locks: ^4.0.2
   google_maps_flutter: ^2.5.3

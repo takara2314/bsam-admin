@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bsam_admin/constants/app_constants.dart';
 
 class BatteryAndAcc extends StatelessWidget {
   const BatteryAndAcc({
@@ -48,7 +49,7 @@ class BatteryAndAcc extends StatelessWidget {
                 '${acc.toStringAsFixed(2)}m',
                 style: TextStyle(
                   fontSize: 12,
-                  color: acc > 10.0 ? Colors.deepOrange : Colors.black
+                  color: acc > AppConstants.locationAccuracyThreshold/3 ? Colors.deepOrange : Colors.black
                 )
               )
             ]

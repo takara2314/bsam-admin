@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 
+import 'package:bsam_admin/constants/app_constants.dart';
 import 'package:bsam_admin/models/user.dart';
 import 'package:bsam_admin/providers.dart';
 import 'package:bsam_admin/pages/home/app_bar.dart';
@@ -80,7 +81,7 @@ class _Home extends ConsumerState<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const HomeAppBar(
-        assocName: 'セーリング伊勢'
+        assocName: AppConstants.assocName
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -89,12 +90,16 @@ class _Home extends ConsumerState<Home> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               const RaceNameArea(
-                raceName: '全国ハンザクラスブラインドセーリング大会'
+                raceName: AppConstants.raceName
               ),
+              const SizedBox(height: 24.0),
               for (final mark in marks)
-                MarkButton(
-                  assocId: _assocId,
-                  mark: mark
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: MarkButton(
+                    assocId: _assocId,
+                    mark: mark
+                  ),
                 ),
               ManageButton(
                 assocId: _assocId

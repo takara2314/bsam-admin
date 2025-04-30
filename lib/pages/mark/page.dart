@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import 'package:bsam_admin/constants/app_constants.dart';
 import 'package:bsam_admin/providers.dart';
 import 'package:bsam_admin/pages/mark/pop_dialog.dart';
 import 'package:bsam_admin/pages/mark/app_bar.dart';
@@ -35,17 +36,14 @@ class Mark extends ConsumerStatefulWidget {
 }
 
 class _Mark extends ConsumerState<Mark> {
-  static const markNames = {
-    1: ['上', 'かみ', '①'],
-    2: ['サイド', 'さいど', '②'],
-    3: ['下', 'しも', '③']
-  };
-
   late WebSocketChannel _channel;
+  bool _disposed = false;
+  bool _isConnected = false;
+  Timer? _reconnectTimer;
 
-  late Timer _timerSendPos;
-  late Timer _timerBattery;
-  late Timer _timerAutoMapMove;
+  Timer? _timerSendPos;
+  Timer? _timerBattery;
+  Timer? _timerAutoMapMove;
 
   final Completer<GoogleMapController> _controller = Completer();
   final Set<Marker> _mapMarkers = <Marker>{};
@@ -73,146 +71,264 @@ class _Mark extends ConsumerState<Mark> {
     // Screen lock
     WakelockPlus.enable();
 
+    _startLocationTimer();
+    _startBatteryTimer();
+    _startAutoMapMoveTimer();
+    _connectWs();
+  }
+
+  void _startLocationTimer() {
     _sendPosition(null);
     _timerSendPos = Timer.periodic(
-      const Duration(seconds: 1),
+      Duration(milliseconds: AppConstants.locationUpdateInterval),
       _sendPosition
     );
+  }
 
+  void _startBatteryTimer() {
     _sendBattery(null);
     _timerBattery = Timer.periodic(
-      const Duration(seconds: 10),
+      Duration(milliseconds: AppConstants.batteryUpdateInterval),
       _sendBattery
     );
+  }
 
+  void _startAutoMapMoveTimer() {
     _moveMapAutomatically(null);
     _timerAutoMapMove = Timer.periodic(
       const Duration(seconds: 10),
       _moveMapAutomatically
     );
-
-    _connectWs();
   }
 
   @override
   void dispose() {
-    _timerSendPos.cancel();
-    _timerBattery.cancel();
-    _timerAutoMapMove.cancel();
-    _channel.sink.close(status.goingAway);
+    _disposed = true;
+    _cancelAllTimers();
+    _closeWsConnection();
+    _reconnectTimer?.cancel();
     WakelockPlus.disable();
     super.dispose();
   }
 
-  _connectWs() {
-    if (!mounted) {
+  void _cancelAllTimers() {
+    _timerSendPos?.cancel();
+    _timerBattery?.cancel();
+    _timerAutoMapMove?.cancel();
+  }
+
+  void _closeWsConnection() {
+    try {
+      if (_isConnected) {
+        _channel.sink.close(status.normalClosure);
+        _isConnected = false;
+      }
+    } catch (e) {
+      debugPrint('WebSocket切断エラー: $e');
+    }
+  }
+
+  void _connectWs() {
+    if (_disposed || !mounted) {
       return;
     }
 
-    // Get server url
-    final serverUrl = ref.read(serverUrlProvider);
+    // 接続中なら一度閉じる
+    _closeWsConnection();
 
-    _channel = IOWebSocketChannel.connect(
-      Uri.parse('$serverUrl/racing/${widget.assocId}'),
-      pingInterval: const Duration(seconds: 1)
-    );
-
-    _channel.stream.listen(_readWsMsg,
-      onDone: () {
-        if (mounted) {
-          debugPrint('reconnect');
-          _connectWs();
-        }
-      }
-    );
-
-    final jwt = ref.read(jwtProvider);
     try {
-      _channel.sink.add(json.encode({
+      // Get server url
+      final serverUrl = ref.read(serverUrlProvider);
+
+      _channel = IOWebSocketChannel.connect(
+        Uri.parse('$serverUrl/racing/${widget.assocId}'),
+        pingInterval: const Duration(seconds: 1)
+      );
+
+      _isConnected = true;
+
+      _channel.stream.listen(
+        (msg) {
+          _handleWsMessage(msg);
+        },
+        onDone: () {
+          _handleWsDisconnection();
+        },
+        onError: (error) {
+          debugPrint('WebSocketエラー: $error');
+          _handleWsDisconnection();
+        }
+      );
+
+      if (_disposed || !mounted) return;
+
+      final jwt = ref.read(jwtProvider);
+      _sendWsMessage({
         'type': 'auth',
         'token': jwt,
         'user_id': widget.userId,
         'role': 'mark',
         'mark_no': widget.markNo
-      }));
-    } catch (_) {}
+      });
+    } catch (e) {
+      debugPrint('WebSocket接続エラー: $e');
+      _scheduleReconnect();
+    }
   }
 
-  _readWsMsg(dynamic msg) {
+  void _handleWsDisconnection() {
+    if (_disposed) return;
+
+    _isConnected = false;
+    debugPrint('WebSocket切断: 再接続をスケジュール');
+    _scheduleReconnect();
+  }
+
+  void _scheduleReconnect() {
+    if (_disposed || !mounted) return;
+
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(
+      const Duration(seconds: AppConstants.wsReconnectInterval),
+      () {
+        if (!_disposed && mounted) {
+          debugPrint('WebSocket再接続試行');
+          _connectWs();
+        }
+      }
+    );
+  }
+
+  void _handleWsMessage(dynamic msg) {
+    if (_disposed || !mounted) return;
+
+    try {
+      _readWsMsg(msg);
+    } catch (e) {
+      debugPrint('メッセージ処理エラー: $e');
+    }
+  }
+
+  void _sendWsMessage(Map<String, dynamic> message) {
+    if (_disposed || !mounted || !_isConnected) return;
+
+    try {
+      _channel.sink.add(json.encode(message));
+    } catch (e) {
+      debugPrint('メッセージ送信エラー: $e');
+      _handleWsDisconnection();
+    }
+  }
+
+  void _readWsMsg(dynamic msg) {
+    if (_disposed || !mounted) return;
+
     setState(() {
       _receivedInfoServer = true;
     });
   }
 
-  _getPosition() async {
-    Position pos = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.best,
-      ),
-    );
-
-    if (pos.accuracy > 30.0 || !mounted) {
-      return;
-    }
-
-    setState(() {
-      _lat = pos.latitude;
-      _lng = pos.longitude;
-      _accuracy = pos.accuracy;
-    });
-  }
-
-  _sendPosition(Timer? timer) async {
-    if (!_manual) {
-      await _getPosition();
-    }
+  Future<void> _getPosition() async {
+    if (_disposed || !mounted) return;
 
     try {
-      _channel.sink.add(json.encode({
+      Position pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.best,
+        ),
+      );
+
+      if (_disposed || !mounted) return;
+
+      if (pos.accuracy > AppConstants.locationAccuracyThreshold) {
+        return;
+      }
+
+      setState(() {
+        _lat = pos.latitude;
+        _lng = pos.longitude;
+        _accuracy = pos.accuracy;
+      });
+    } catch (e) {
+      debugPrint('位置情報取得エラー: $e');
+    }
+  }
+
+  void _sendPosition(Timer? timer) async {
+    if (_disposed || !mounted) return;
+
+    try {
+      if (!_manual) {
+        await _getPosition();
+      }
+
+      if (_disposed || !mounted) return;
+
+      _sendWsMessage({
         'type': 'position',
         'latitude': _lat,
         'longitude': _lng,
         'accuracy': _accuracy
-      }));
+      });
+
+      if (_disposed || !mounted) return;
 
       setState(() {
         _sentPosition = true;
       });
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('位置情報送信エラー: $e');
+    }
   }
 
-  _moveMapAutomatically(Timer? timer) {
+  void _moveMapAutomatically(Timer? timer) {
+    if (_disposed || !mounted) return;
+
     if (!_manual) {
       _updateMapPosition();
     }
   }
 
-  _sendBattery(Timer? timer) async {
-    final level = await _getBattery();
+  void _sendBattery(Timer? timer) async {
+    if (_disposed || !mounted) return;
 
     try {
-      _channel.sink.add(json.encode({
+      final level = await _getBattery();
+
+      if (_disposed || !mounted) return;
+
+      _sendWsMessage({
         'type': 'battery',
         'level': level
-      }));
-    } catch (_) {}
+      });
+    } catch (e) {
+      debugPrint('バッテリー情報送信エラー: $e');
+    }
   }
 
   Future<int> _getBattery() async {
-    return await battery.batteryLevel;
+    try {
+      return await battery.batteryLevel;
+    } catch (e) {
+      debugPrint('バッテリー情報取得エラー: $e');
+      return 0;
+    }
   }
 
-  _updateMapPosition() async {
-    if (
-      !_autoMoveMap
-      || !mounted
-      || _mapAnimating
-    ) {
+  Future<void> _updateMapPosition() async {
+    if (_disposed || !mounted) return;
+
+    if (!_autoMoveMap || _mapAnimating) {
       return;
     }
 
     if (_lat == 0.0 && _lng == 0.0) {
+      if (_disposed || !mounted) return;
+
       await Future.delayed(const Duration(milliseconds: 500));
+
+      if (_disposed || !mounted) return;
+
       return _updateMapPosition();
     }
 
@@ -221,36 +337,60 @@ class _Mark extends ConsumerState<Mark> {
       _autoMovingMap = true;
     });
 
-    final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: LatLng(_lat, _lng),
-          zoom: 18
+    try {
+      final GoogleMapController controller = await _controller.future;
+
+      if (_disposed || !mounted) return;
+
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(_lat, _lng),
+            zoom: 18
+          )
         )
-      )
-    );
+      );
 
-    await Future.delayed(const Duration(seconds: 2));
+      if (_disposed || !mounted) return;
 
-    setState(() {
-      _mapAnimating = false;
-      _autoMovingMap = false;
-    });
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (_disposed || !mounted) return;
+
+      setState(() {
+        _mapAnimating = false;
+        _autoMovingMap = false;
+      });
+    } catch (e) {
+      debugPrint('マップ位置更新エラー: $e');
+
+      if (_disposed || !mounted) return;
+
+      setState(() {
+        _mapAnimating = false;
+        _autoMovingMap = false;
+      });
+    }
   }
 
-  _handleMapCreated(GoogleMapController controller) {
+  void _handleMapCreated(GoogleMapController controller) {
+    if (_disposed || !mounted) return;
+
     _controller.complete(controller);
   }
 
-  _handleMapMove(CameraPosition position) {
+  void _handleMapMove(CameraPosition position) {
+    if (_disposed || !mounted) return;
+
     setState(() {
       _latMap = position.target.latitude;
       _lngMap = position.target.longitude;
     });
   }
 
-  _handleCameraMoveStarted() {
+  void _handleCameraMoveStarted() {
+    if (_disposed || !mounted) return;
+    
     if (_autoMovingMap) {
       return;
     }
@@ -260,7 +400,9 @@ class _Mark extends ConsumerState<Mark> {
     });
   }
 
-  _changeToManual() {
+  void _changeToManual() {
+    if (_disposed || !mounted) return;
+
     setState(() {
       _manual = true;
       _lat = _latMap;
@@ -269,7 +411,9 @@ class _Mark extends ConsumerState<Mark> {
     });
   }
 
-  _changeToAuto() {
+  void _changeToAuto() {
+    if (_disposed || !mounted) return;
+
     setState(() {
       _manual = false;
       _autoMoveMap = true;
@@ -293,7 +437,7 @@ class _Mark extends ConsumerState<Mark> {
             child: Column(
               children: [
                 SendingArea(
-                  markNames: markNames,
+                  markNames: AppConstants.standardMarkNames,
                   markNo: widget.markNo,
                   receivedInfoServer: _receivedInfoServer,
                   sentPosition: _sentPosition,

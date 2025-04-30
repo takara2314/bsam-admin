@@ -2,13 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'dart:async';
 import 'package:bsam_admin/pages/home/page.dart';
 
-Future main() async {
-  // Load environment variables
-  await dotenv.load(fileName: '.env');
+Future<void> main() async {
+  // クラッシュハンドラ
+  runZonedGuarded<Future<void>>(() async {
+    // 環境変数ファイルの読み込み
+    await dotenv.load(fileName: '.env');
 
-  runApp(const ProviderScope(child: App()));
+    // Firebaseの初期化
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // クラッシュハンドラ (Flutterフレームワーク内でスローされたすべてのエラー)
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+    // 画面の向きを縦に固定
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
+    runApp(const ProviderScope(child: App()));
+  },
+    // クラッシュハンドラ (Flutterフレームワーク内でキャッチされないエラー)
+    (error, stack) =>
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true)
+  );
 }
 
 class App extends StatelessWidget {
