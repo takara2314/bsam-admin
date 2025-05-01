@@ -6,7 +6,13 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'dart:async';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:bsam_admin/providers.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:bsam_admin/constants/app_constants.dart';
 import 'package:bsam_admin/pages/home/page.dart';
+
+const primaryColor = Color.fromRGBO(255, 84, 79, 1);
 
 Future<void> main() async {
   // クラッシュハンドラ
@@ -19,6 +25,9 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    // ロケールデータの初期化を追加
+    await initializeDateFormatting('ja_JP');
 
     // クラッシュハンドラ (Flutterフレームワーク内でスローされたすべてのエラー)
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
@@ -36,16 +45,125 @@ Future<void> main() async {
   );
 }
 
-class App extends StatelessWidget {
+class App extends ConsumerStatefulWidget {
   const App({super.key});
+
+  @override
+  ConsumerState<App> createState() => _AppState();
+}
+
+class _AppState extends ConsumerState<App> {
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  bool _showingNoConnectionDialog = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initConnectivity();
+    _setupConnectivityListener();
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> _initConnectivity() async {
+    late List<ConnectivityResult> result;
+    try {
+      result = await Connectivity().checkConnectivity();
+    } catch (e) {
+      debugPrint('Connectivity check failed: ${e.toString()}');
+      result = [ConnectivityResult.none];
+    }
+
+    if (!mounted) return;
+    final notifier = ref.read(connectivityProvider.notifier);
+    if (result.isNotEmpty) {
+       notifier.state = result.first;
+    } else {
+       notifier.state = ConnectivityResult.none;
+    }
+  }
+
+  void _setupConnectivityListener() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final initialConnectivity = ref.read(connectivityProvider);
+      if (initialConnectivity == ConnectivityResult.none) {
+         _showNoConnectionDialog();
+      }
+    });
+
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+       if (!mounted) return;
+      ConnectivityResult currentResult;
+      final notifier = ref.read(connectivityProvider.notifier);
+      if (results.isNotEmpty) {
+        currentResult = results.first;
+        notifier.state = currentResult;
+      } else {
+        currentResult = ConnectivityResult.none;
+        notifier.state = currentResult;
+      }
+
+      if (currentResult == ConnectivityResult.none) {
+        _showNoConnectionDialog();
+      } else {
+        if (_showingNoConnectionDialog && _navigatorKey.currentState != null && _navigatorKey.currentContext != null) {
+          if (ModalRoute.of(_navigatorKey.currentContext!)?.isCurrent != true) {
+             Navigator.of(_navigatorKey.currentContext!, rootNavigator: true).pop();
+          }
+          _showingNoConnectionDialog = false;
+        }
+      }
+    });
+  }
+
+  void _showNoConnectionDialog() {
+    if (_showingNoConnectionDialog || !mounted) return;
+
+    if (_navigatorKey.currentContext == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _showNoConnectionDialog());
+        return;
+    }
+
+    _showingNoConnectionDialog = true;
+    showDialog(
+      context: _navigatorKey.currentContext!,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text(AppConstants.noConnectionDialogTitle),
+        content: const Text(AppConstants.noConnectionDialogContent),
+        backgroundColor: Colors.white,
+        icon: const Icon(Icons.signal_wifi_off, color: Colors.red, size: 36),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _showingNoConnectionDialog = false;
+              Navigator.pop(context);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    ).then((_) {
+       _showingNoConnectionDialog = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'B-SAM 本部用',
+      scaffoldMessengerKey: _scaffoldMessengerKey,
+      navigatorKey: _navigatorKey,
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.red,
+        colorSchemeSeed: primaryColor,
         scaffoldBackgroundColor: const Color(0xFFF2F2F2),
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),

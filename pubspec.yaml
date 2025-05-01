@@ -51,6 +51,8 @@ dependencies:
   async_locks: ^4.0.2
   google_maps_flutter: ^2.5.3
   package_info_plus: ^8.3.0
+  intl: ^0.20.2
+  connectivity_plus: ^6.1.4
 
 dev_dependencies:
   flutter_test:

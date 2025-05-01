@@ -24,4 +24,8 @@ class AppConstants {
 
   // 位置精度の閾値
   static const double locationAccuracyThreshold = 30.0;
+
+  // インターネットに接続されていない場合のダイアログ表示
+  static const String noConnectionDialogTitle = 'インターネットに接続されていません';
+  static const String noConnectionDialogContent = 'B-SAMを利用するにはインターネットの接続が必要です。SIMカードの有効期限が切れていないか確認してください。';
 }
