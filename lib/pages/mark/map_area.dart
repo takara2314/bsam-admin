@@ -15,7 +15,7 @@ class MapArea extends StatelessWidget {
     required this.onCameraMove,
     required this.onCameraMoveStarted,
     required this.changeToManual,
-    required this.changeToAuto
+    required this.changeToAuto,
   });
 
   final double latitude;
@@ -42,20 +42,17 @@ class MapArea extends StatelessWidget {
           onMapCreated: onMapCreated,
           onCameraMove: onCameraMove,
           onCameraMoveStarted: onCameraMoveStarted,
-          changeToManual: changeToManual
+          changeToManual: changeToManual,
         ),
         Visibility(
           visible: manual,
           child: ElevatedButton(
             onPressed: changeToAuto,
-            child: const Text('現在位置をマークにする')
-          )
+            child: const Text('現在位置をマークにする'),
+          ),
         ),
-        Visibility(
-          visible: autoMoveMap,
-          child: const Text('自動移動有効')
-        )
-      ]
+        Visibility(visible: autoMoveMap, child: const Text('自動移動有効')),
+      ],
     );
   }
 }
@@ -70,7 +67,7 @@ class MapView extends StatelessWidget {
     required this.onMapCreated,
     required this.onCameraMove,
     required this.onCameraMoveStarted,
-    required this.changeToManual
+    required this.changeToManual,
   });
 
   final double latitude;
@@ -101,11 +98,11 @@ class MapView extends StatelessWidget {
             markers: mapMarkers,
             initialCameraPosition: CameraPosition(
               target: LatLng(latitude, longitude),
-              zoom: 18
+              zoom: 18,
             ),
             onMapCreated: onMapCreated,
             onCameraMove: onCameraMove,
-            onCameraMoveStarted: onCameraMoveStarted
+            onCameraMoveStarted: onCameraMoveStarted,
           ),
           Align(
             alignment: Alignment.center,
@@ -114,11 +111,9 @@ class MapView extends StatelessWidget {
               height: 40,
               child: Opacity(
                 opacity: 0.75,
-                child: CustomPaint(
-                  painter: MapCrossPainter(),
-                )
-              )
-            )
+                child: CustomPaint(painter: MapCrossPainter()),
+              ),
+            ),
           ),
           Align(
             alignment: const Alignment(0.8, 0.9),
@@ -126,12 +121,12 @@ class MapView extends StatelessWidget {
               visible: !autoMoveMap,
               child: ElevatedButton(
                 onPressed: changeToManual,
-                child: const Text('ここをマークにする')
-              )
-            )
-          )
-        ]
-      )
+                child: const Text('ここをマークにする'),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -139,14 +134,21 @@ class MapView extends StatelessWidget {
 class MapCrossPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 4;
+    final paint =
+        Paint()
+          ..color = Colors.white
+          ..strokeWidth = 4;
 
     canvas.drawLine(
-        Offset(size.width / 2, 0), Offset(size.width / 2, size.height), paint);
+      Offset(size.width / 2, 0),
+      Offset(size.width / 2, size.height),
+      paint,
+    );
     canvas.drawLine(
-        Offset(0, size.height / 2), Offset(size.width, size.height / 2), paint);
+      Offset(0, size.height / 2),
+      Offset(size.width, size.height / 2),
+      paint,
+    );
   }
 
   @override

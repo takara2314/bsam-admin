@@ -14,7 +14,7 @@ class Athlete {
     this.courseLimit,
     this.batteryLevel,
     this.compassDeg,
-    this.location
+    this.location,
   });
 
   Athlete.fromJson(Map<String, dynamic> json) {

@@ -3,11 +3,7 @@ class Position {
   double? lng;
   double? acc;
 
-  Position({
-    this.lat,
-    this.lng,
-    this.acc
-  });
+  Position({this.lat, this.lng, this.acc});
 
   Position.fromJson(Map<String, dynamic> json) {
     lat = json['latitude'].toDouble();

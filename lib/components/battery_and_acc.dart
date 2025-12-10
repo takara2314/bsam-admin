@@ -5,7 +5,7 @@ class BatteryAndAcc extends StatelessWidget {
   const BatteryAndAcc({
     super.key,
     required this.batteryLevel,
-    required this.acc
+    required this.acc,
   });
 
   final int batteryLevel;
@@ -16,7 +16,7 @@ class BatteryAndAcc extends StatelessWidget {
     if (acc == 0.0) {
       return const Text(
         '手動設定',
-        style: TextStyle(fontSize: 12, color: Colors.grey)
+        style: TextStyle(fontSize: 12, color: Colors.grey),
       );
     }
 
@@ -26,16 +26,16 @@ class BatteryAndAcc extends StatelessWidget {
           children: [
             const Text(
               'バッテリー: ',
-              style: TextStyle(fontSize: 12, color: Colors.grey)
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
             Text(
               '$batteryLevel%',
               style: TextStyle(
                 fontSize: 12,
-                color: batteryLevel < 20 ? Colors.deepOrange : Colors.black
-              )
-            )
-          ]
+                color: batteryLevel < 20 ? Colors.deepOrange : Colors.black,
+              ),
+            ),
+          ],
         ),
         Padding(
           padding: const EdgeInsets.only(left: 20),
@@ -43,19 +43,22 @@ class BatteryAndAcc extends StatelessWidget {
             children: [
               const Text(
                 '精度: ',
-                style: TextStyle(fontSize: 12, color: Colors.grey)
+                style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
               Text(
                 '${acc.toStringAsFixed(2)}m',
                 style: TextStyle(
                   fontSize: 12,
-                  color: acc > AppConstants.locationAccuracyThreshold/3 ? Colors.deepOrange : Colors.black
-                )
-              )
-            ]
-          )
-        )
-      ]
+                  color:
+                      acc > AppConstants.locationAccuracyThreshold / 3
+                          ? Colors.deepOrange
+                          : Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -6,12 +6,7 @@ class Mark {
   int? batteryLevel;
   Position? position;
 
-  Mark({
-    this.userId,
-    this.markNo,
-    this.batteryLevel,
-    this.position
-  });
+  Mark({this.userId, this.markNo, this.batteryLevel, this.position});
 
   Mark.fromJson(Map<String, dynamic> json) {
     userId = json['user_id'];

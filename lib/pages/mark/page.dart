@@ -10,6 +10,8 @@ import 'package:web_socket_channel/status.dart' as status;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'package:bsam_admin/constants/app_constants.dart';
 import 'package:bsam_admin/providers.dart';
@@ -18,13 +20,15 @@ import 'package:bsam_admin/pages/mark/app_bar.dart';
 import 'package:bsam_admin/pages/mark/debug_area.dart';
 import 'package:bsam_admin/pages/mark/map_area.dart';
 import 'package:bsam_admin/pages/mark/sending_area.dart';
+import 'package:bsam_admin/utils/websocket_url_validator.dart';
+import 'package:bsam_admin/utils/reconnection_strategy.dart';
 
 class Mark extends ConsumerStatefulWidget {
   const Mark({
     super.key,
     required this.assocId,
     required this.userId,
-    required this.markNo
+    required this.markNo,
   });
 
   final String assocId;
@@ -40,6 +44,8 @@ class _Mark extends ConsumerState<Mark> {
   bool _disposed = false;
   bool _isConnected = false;
   Timer? _reconnectTimer;
+  int _reconnectAttempts = 0;
+  bool _isConnecting = false;
 
   Timer? _timerSendPos;
   Timer? _timerBattery;
@@ -81,7 +87,7 @@ class _Mark extends ConsumerState<Mark> {
     _sendPosition(null);
     _timerSendPos = Timer.periodic(
       Duration(milliseconds: AppConstants.locationUpdateInterval),
-      _sendPosition
+      _sendPosition,
     );
   }
 
@@ -89,7 +95,7 @@ class _Mark extends ConsumerState<Mark> {
     _sendBattery(null);
     _timerBattery = Timer.periodic(
       Duration(milliseconds: AppConstants.batteryUpdateInterval),
-      _sendBattery
+      _sendBattery,
     );
   }
 
@@ -97,7 +103,7 @@ class _Mark extends ConsumerState<Mark> {
     _moveMapAutomatically(null);
     _timerAutoMapMove = Timer.periodic(
       const Duration(seconds: 10),
-      _moveMapAutomatically
+      _moveMapAutomatically,
     );
   }
 
@@ -129,20 +135,53 @@ class _Mark extends ConsumerState<Mark> {
   }
 
   void _connectWs() {
-    if (_disposed || !mounted) {
+    // 接続可能状態のチェック
+    if (_disposed || !mounted || _isConnecting) {
+      return;
+    }
+
+    // ネットワーク接続状態を確認
+    final connectivity = ref.read(connectivityProvider);
+    if (connectivity == ConnectivityResult.none) {
+      debugPrint('No network connection, skipping WebSocket connection');
+      _scheduleReconnect();
       return;
     }
 
     // 接続中なら一度閉じる
     _closeWsConnection();
 
-    try {
-      // Get server url
-      final serverUrl = ref.read(serverUrlProvider);
+    // サーバーURLの取得
+    final serverUrl = ref.read(serverUrlProvider);
 
+    // WebSocket URLの検証
+    final validationResult = WebSocketUrlValidator.validate(
+      serverUrl,
+      'racing/${widget.assocId}',
+    );
+
+    if (!validationResult.isValid) {
+      debugPrint(
+        'WebSocket URL validation failed: ${validationResult.errorMessage}',
+      );
+      FirebaseCrashlytics.instance.recordError(
+        Exception(validationResult.errorMessage),
+        StackTrace.current,
+        fatal: false,
+        reason: 'WebSocket connection validation failed',
+      );
+      _scheduleReconnect();
+      return;
+    }
+
+    final uri = validationResult.uri!;
+
+    _isConnecting = true;
+
+    try {
       _channel = IOWebSocketChannel.connect(
-        Uri.parse('$serverUrl/racing/${widget.assocId}'),
-        pingInterval: const Duration(seconds: 1)
+        uri,
+        pingInterval: const Duration(seconds: 1),
       );
 
       _isConnected = true;
@@ -156,11 +195,27 @@ class _Mark extends ConsumerState<Mark> {
         },
         onError: (error) {
           debugPrint('WebSocketエラー: $error');
+          _isConnecting = false;
+          // エラーを非致命的に記録
+          // ネットワークエラーでアプリがクラッシュすることを防ぐ
+          FirebaseCrashlytics.instance.recordError(
+            error,
+            StackTrace.current,
+            fatal: false,
+            reason: 'WebSocket connection error',
+          );
           _handleWsDisconnection();
-        }
+        },
       );
 
-      if (_disposed || !mounted) return;
+      if (_disposed || !mounted) {
+        _isConnecting = false;
+        return;
+      }
+
+      // 接続成功時はリトライカウンターをリセット
+      // これにより、次回の切断時には再び短い遅延（1秒）から再接続を開始する
+      _reconnectAttempts = 0;
 
       final jwt = ref.read(jwtProvider);
       _sendWsMessage({
@@ -168,10 +223,17 @@ class _Mark extends ConsumerState<Mark> {
         'token': jwt,
         'user_id': widget.userId,
         'role': 'mark',
-        'mark_no': widget.markNo
+        'mark_no': widget.markNo,
       });
     } catch (e) {
+      _isConnecting = false;
       debugPrint('WebSocket接続エラー: $e');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        fatal: false,
+        reason: 'WebSocket connection exception',
+      );
       _scheduleReconnect();
     }
   }
@@ -180,23 +242,38 @@ class _Mark extends ConsumerState<Mark> {
     if (_disposed) return;
 
     _isConnected = false;
+    _isConnecting = false;
     debugPrint('WebSocket切断: 再接続をスケジュール');
     _scheduleReconnect();
   }
 
   void _scheduleReconnect() {
-    if (_disposed || !mounted) return;
+    // 再接続スケジュール可能状態のチェック
+    if (_disposed || !mounted || _isConnecting) {
+      return;
+    }
 
+    // 既存のタイマーをキャンセル（重複防止）
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(
-      const Duration(seconds: AppConstants.wsReconnectInterval),
-      () {
-        if (!_disposed && mounted) {
-          debugPrint('WebSocket再接続試行');
-          _connectWs();
-        }
-      }
+
+    // 指数バックオフによる遅延時間の計算
+    final delaySeconds = ReconnectionStrategy.calculateDelaySeconds(
+      _reconnectAttempts,
     );
+
+    _reconnectAttempts++;
+
+    debugPrint(
+      'Scheduling WebSocket reconnect in $delaySeconds seconds '
+      '(attempt $_reconnectAttempts)',
+    );
+
+    _reconnectTimer = Timer(Duration(seconds: delaySeconds), () {
+      if (!_disposed && mounted) {
+        debugPrint('WebSocket再接続試行');
+        _connectWs();
+      }
+    });
   }
 
   void _handleWsMessage(dynamic msg) {
@@ -213,9 +290,23 @@ class _Mark extends ConsumerState<Mark> {
     if (_disposed || !mounted || !_isConnected) return;
 
     try {
+      // チャネルの状態を確認
+      // クローズ済みのチャネルへの送信を防ぐ
+      if (_channel.closeCode != null) {
+        debugPrint('WebSocket channel is closed, attempting reconnect');
+        _handleWsDisconnection();
+        return;
+      }
       _channel.sink.add(json.encode(message));
     } catch (e) {
       debugPrint('メッセージ送信エラー: $e');
+      // 送信エラーを非致命的に記録
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        fatal: false,
+        reason: 'WebSocket message send error',
+      );
       _handleWsDisconnection();
     }
   }
@@ -268,7 +359,7 @@ class _Mark extends ConsumerState<Mark> {
         'type': 'position',
         'latitude': _lat,
         'longitude': _lng,
-        'accuracy': _accuracy
+        'accuracy': _accuracy,
       });
 
       if (_disposed || !mounted) return;
@@ -297,10 +388,7 @@ class _Mark extends ConsumerState<Mark> {
 
       if (_disposed || !mounted) return;
 
-      _sendWsMessage({
-        'type': 'battery',
-        'level': level
-      });
+      _sendWsMessage({'type': 'battery', 'level': level});
     } catch (e) {
       debugPrint('バッテリー情報送信エラー: $e');
     }
@@ -344,11 +432,8 @@ class _Mark extends ConsumerState<Mark> {
 
       await controller.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(_lat, _lng),
-            zoom: 18
-          )
-        )
+          CameraPosition(target: LatLng(_lat, _lng), zoom: 18),
+        ),
       );
 
       if (_disposed || !mounted) return;
@@ -390,7 +475,7 @@ class _Mark extends ConsumerState<Mark> {
 
   void _handleCameraMoveStarted() {
     if (_disposed || !mounted) return;
-    
+
     if (_autoMovingMap) {
       return;
     }
@@ -446,7 +531,7 @@ class _Mark extends ConsumerState<Mark> {
                   latitude: _lat,
                   longitude: _lng,
                   accuracy: _accuracy,
-                  manual: _manual
+                  manual: _manual,
                 ),
                 MapArea(
                   latitude: _lat,
@@ -459,13 +544,13 @@ class _Mark extends ConsumerState<Mark> {
                   onCameraMove: _handleMapMove,
                   onCameraMoveStarted: _handleCameraMoveStarted,
                   changeToManual: _changeToManual,
-                  changeToAuto: _changeToAuto
-                )
-              ]
-            )
-          )
-        )
-      )
+                  changeToAuto: _changeToAuto,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

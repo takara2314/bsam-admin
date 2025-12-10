@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PopAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const PopAppBar({
-    super.key,
-    required this.pageName
-  });
+  const PopAppBar({super.key, required this.pageName});
 
   final String pageName;
 
@@ -13,15 +10,12 @@ class PopAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios),
-        onPressed: () => Navigator.pop(context)
+        onPressed: () => Navigator.pop(context),
       ),
       title: Text(
         pageName,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16
-        )
-      )
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      ),
     );
   }
 

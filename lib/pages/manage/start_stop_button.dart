@@ -4,7 +4,7 @@ class StartStopButton extends StatelessWidget {
   const StartStopButton({
     super.key,
     required this.started,
-    required this.startRace
+    required this.startRace,
   });
 
   final bool started;
@@ -13,20 +13,16 @@ class StartStopButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: (started
-        ? ElevatedButton(
-            child: const Text(
-              'レースを終了する'
-            ),
-            onPressed: () => startRace(false)
-          )
-        : ElevatedButton(
-            child: const Text(
-              'レースを開始する'
-            ),
-            onPressed: () => startRace(true)
-          )
-      )
+      child:
+          (started
+              ? ElevatedButton(
+                child: const Text('レースを終了する'),
+                onPressed: () => startRace(false),
+              )
+              : ElevatedButton(
+                child: const Text('レースを開始する'),
+                onPressed: () => startRace(true),
+              )),
     );
   }
 }
