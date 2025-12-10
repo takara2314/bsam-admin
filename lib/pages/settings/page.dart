@@ -48,24 +48,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         }
       } catch (e) {
         _isLicenseActive = false;
-         setState(() {});
+        setState(() {});
       }
     } else {
-       _isLicenseActive = false;
-       setState(() {});
+      _isLicenseActive = false;
+      setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final formattedExpiryDate = _jwtExpiryDate != null
-        ? DateFormat('yyyy年M月d日', 'ja_JP').format(_jwtExpiryDate!)
-        : '不明';
+    final formattedExpiryDate =
+        _jwtExpiryDate != null
+            ? DateFormat('yyyy年M月d日', 'ja_JP').format(_jwtExpiryDate!)
+            : '不明';
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('設定', style: TextStyle(fontSize: 16)),
-      ),
+      appBar: AppBar(title: const Text('設定', style: TextStyle(fontSize: 16))),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: <Widget>[
@@ -110,14 +109,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   const Text(
-                     'ライセンス情報',
-                     style: TextStyle(
-                       fontSize: 16,
-                       fontWeight: FontWeight.bold,
-                     ),
-                   ),
-                   const SizedBox(height: 10),
+                  const Text(
+                    'ライセンス情報',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       Icon(
@@ -134,23 +130,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       ),
                     ],
                   ),
-                   if (_jwtExpiryDate != null) ...[
-                     const SizedBox(height: 5),
-                     Row(
-                       children: [
-                         Text('有効期限: $formattedExpiryDate'),
-                         if (!_isLicenseActive)
-                           const Text(
-                             '（有効期限切れ）',
-                             style: TextStyle(color: Colors.red),
-                           ),
-                       ],
-                     ),
-                  ] else if (!_isLicenseActive) ... [
-                     const SizedBox(height: 5),
-                     const Text('有効なライセンスが設定されていません。'),
-                  ]
-
+                  if (_jwtExpiryDate != null) ...[
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        Text('有効期限: $formattedExpiryDate'),
+                        if (!_isLicenseActive)
+                          const Text(
+                            '（有効期限切れ）',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                      ],
+                    ),
+                  ] else if (!_isLicenseActive) ...[
+                    const SizedBox(height: 5),
+                    const Text('有効なライセンスが設定されていません。'),
+                  ],
                 ],
               ),
             ),

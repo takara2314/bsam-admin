@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 
 class ManageAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ManageAppBar({
-    super.key
-  });
+  const ManageAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios),
-        onPressed: () => Navigator.pop(context)
-      )
+        onPressed: () => Navigator.pop(context),
+      ),
     );
   }
 

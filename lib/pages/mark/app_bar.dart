@@ -3,17 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:bsam_admin/pages/mark/pop_dialog.dart';
 
 class MarkAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MarkAppBar({
-    super.key
-  });
+  const MarkAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios),
-        onPressed: () => isPopDialog(context)
-      )
+        onPressed: () => isPopDialog(context),
+      ),
     );
   }
 

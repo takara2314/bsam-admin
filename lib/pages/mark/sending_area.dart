@@ -6,7 +6,7 @@ class SendingArea extends StatelessWidget {
     required this.markNo,
     required this.markNames,
     required this.receivedInfoServer,
-    required this.sentPosition
+    required this.sentPosition,
   });
 
   final int markNo;
@@ -25,19 +25,19 @@ class SendingArea extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               color: Theme.of(context).colorScheme.tertiary,
-              fontWeight: FontWeight.bold
-            )
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Text(
             (sentPosition && receivedInfoServer) ? '送信中です' : '...',
             style: TextStyle(
               fontSize: 36,
               color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold
-            )
-          )
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
-      )
+      ),
     );
   }
 }

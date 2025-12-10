@@ -4,11 +4,7 @@ import 'package:bsam_admin/models/mark.dart';
 import 'package:bsam_admin/components/battery_and_acc.dart';
 
 class MarksArea extends StatelessWidget {
-  const MarksArea({
-    super.key,
-    required this.markNames,
-    required this.marks
-  });
+  const MarksArea({super.key, required this.markNames, required this.marks});
 
   final Map<int, List<String>> markNames;
   final List<Mark> marks;
@@ -23,27 +19,19 @@ class MarksArea extends StatelessWidget {
       padding: const EdgeInsets.only(top: 20, left: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10)
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         children: [
-          for (final mark in marks)
-            MarkItem(
-              markNames: markNames,
-              mark: mark
-            )
-        ]
-      )
+          for (final mark in marks) MarkItem(markNames: markNames, mark: mark),
+        ],
+      ),
     );
   }
 }
 
 class MarkItem extends StatelessWidget {
-  const MarkItem({
-    super.key,
-    required this.markNames,
-    required this.mark
-  });
+  const MarkItem({super.key, required this.markNames, required this.mark});
 
   final Map<int, List<String>> markNames;
   final Mark mark;
@@ -56,10 +44,7 @@ class MarkItem extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
-            child: Image.asset(
-              'images/icon_mark${mark.markNo}.png',
-              width: 30
-            )
+            child: Image.asset('images/icon_mark${mark.markNo}.png', width: 30),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,8 +59,8 @@ class MarkItem extends StatelessWidget {
                         '${markNames[mark.markNo]![0]}マーク',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16
-                        )
+                          fontSize: 16,
+                        ),
                       ),
                       Visibility(
                         visible: mark.userId == '' && mark.position!.lat != 0.0,
@@ -83,35 +68,32 @@ class MarkItem extends StatelessWidget {
                           '（切断）',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.deepOrange
-                          )
-                        )
-                      )
-                    ]
-                  )
-                )
+                            color: Colors.deepOrange,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               Visibility(
                 visible: mark.position!.lat != 0.0,
                 child: BatteryAndAcc(
                   batteryLevel: mark.batteryLevel!,
-                  acc: mark.position!.acc!
-                )
+                  acc: mark.position!.acc!,
+                ),
               ),
               Visibility(
                 visible: mark.userId == '' && mark.position!.lat == 0.0,
                 child: const Text(
                   '設定されていません',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.deepOrange
-                  )
-                )
-              )
-            ]
-          )
-        ]
-      )
+                  style: TextStyle(fontSize: 12, color: Colors.deepOrange),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

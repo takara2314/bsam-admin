@@ -3,10 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:bsam_admin/pages/settings/page.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const HomeAppBar({
-    super.key,
-    required this.assocName
-  });
+  const HomeAppBar({super.key, required this.assocName});
 
   final String assocName;
 
@@ -22,24 +19,29 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             'images/logo.svg',
             semanticsLabel: 'logo',
             width: 42,
-            height: 42
+            height: 42,
           ),
           Container(
             width: width * 0.6,
-            padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 8),
+            padding: const EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 8,
+              bottom: 8,
+            ),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(9999)
+              borderRadius: BorderRadius.circular(9999),
             ),
             child: Text(
               assocName,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
-                fontSize: 16
-              )
-            )
+                fontSize: 16,
+              ),
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.settings),
@@ -49,10 +51,10 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
-            }
-          )
-        ]
-      )
+            },
+          ),
+        ],
+      ),
     );
   }
 

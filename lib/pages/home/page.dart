@@ -23,7 +23,7 @@ class _Home extends ConsumerState<Home> {
   static final marks = <User>[
     User(displayName: '上マーク', id: 'mark1', markNo: 1),
     User(displayName: 'サイドマーク', id: 'mark2', markNo: 2),
-    User(displayName: '下マーク', id: 'mark3', markNo: 3)
+    User(displayName: '下マーク', id: 'mark3', markNo: 3),
   ];
 
   String? _assocId;
@@ -70,34 +70,25 @@ class _Home extends ConsumerState<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const HomeAppBar(
-        assocName: AppConstants.assocName
-      ),
+      appBar: const HomeAppBar(assocName: AppConstants.assocName),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              const RaceNameArea(
-                raceName: AppConstants.raceName
-              ),
+              const RaceNameArea(raceName: AppConstants.raceName),
               const SizedBox(height: 24.0),
               for (final mark in marks)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: MarkButton(
-                    assocId: _assocId,
-                    mark: mark
-                  ),
+                  child: MarkButton(assocId: _assocId, mark: mark),
                 ),
-              ManageButton(
-                assocId: _assocId
-              ),
-            ]
-          )
-        )
-      )
+              ManageButton(assocId: _assocId),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

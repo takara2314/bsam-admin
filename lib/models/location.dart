@@ -5,13 +5,7 @@ class Location {
   double? heading;
   double? headingFixing;
 
-  Location({
-    this.lat,
-    this.lng,
-    this.acc,
-    this.heading,
-    this.headingFixing
-  });
+  Location({this.lat, this.lng, this.acc, this.heading, this.headingFixing});
 
   Location.fromJson(Map<String, dynamic> json) {
     lat = json['latitude'].toDouble();

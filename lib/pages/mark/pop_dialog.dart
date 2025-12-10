@@ -18,7 +18,7 @@ void isPopDialog(BuildContext context) {
             onPressed: () {
               int count = 0;
               Navigator.popUntil(context, (_) => count++ >= 2);
-            }
+            },
           ),
         ],
       );

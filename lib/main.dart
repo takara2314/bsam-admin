@@ -11,37 +11,49 @@ import 'package:bsam_admin/providers.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:bsam_admin/constants/app_constants.dart';
 import 'package:bsam_admin/pages/home/page.dart';
+import 'package:bsam_admin/utils/error_classifier.dart';
 
 const primaryColor = Color.fromRGBO(255, 84, 79, 1);
 
 Future<void> main() async {
   // クラッシュハンドラ
-  runZonedGuarded<Future<void>>(() async {
-    // 環境変数ファイルの読み込み
-    await dotenv.load(fileName: '.env');
+  runZonedGuarded<Future<void>>(
+    () async {
+      // 環境変数ファイルの読み込み
+      await dotenv.load(fileName: '.env');
 
-    // Firebaseの初期化
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+      // Firebaseの初期化
+      WidgetsFlutterBinding.ensureInitialized();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
-    // ロケールデータの初期化を追加
-    await initializeDateFormatting('ja_JP');
+      // ロケールデータの初期化を追加
+      await initializeDateFormatting('ja_JP');
 
-    // クラッシュハンドラ (Flutterフレームワーク内でスローされたすべてのエラー)
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      // クラッシュハンドラ (Flutterフレームワーク内でスローされたすべてのエラー)
+      FlutterError.onError =
+          FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-    // 画面の向きを縦に固定
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+      // 画面の向きを縦に固定
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-    runApp(const ProviderScope(child: App()));
-  },
+      runApp(const ProviderScope(child: App()));
+    },
     // クラッシュハンドラ (Flutterフレームワーク内でキャッチされないエラー)
-    (error, stack) =>
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true)
+    //
+    // ネットワーク関連のエラーは非致命的として記録することで、
+    // 一時的なネットワーク障害でアプリがクラッシュすることを防ぐ。
+    // これにより、レース管理や位置情報送信が突然停止するリスクを軽減する。
+    (error, stack) {
+      final isFatal = ErrorClassifier.isFatalError(error);
+      FirebaseCrashlytics.instance.recordError(
+        error,
+        stack,
+        fatal: isFatal,
+        reason: 'Uncaught error in runZonedGuarded',
+      );
+    },
   );
 }
 
@@ -53,7 +65,8 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
-  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
   bool _showingNoConnectionDialog = false;
@@ -83,9 +96,9 @@ class _AppState extends ConsumerState<App> {
     if (!mounted) return;
     final notifier = ref.read(connectivityProvider.notifier);
     if (result.isNotEmpty) {
-       notifier.state = result.first;
+      notifier.state = result.first;
     } else {
-       notifier.state = ConnectivityResult.none;
+      notifier.state = ConnectivityResult.none;
     }
   }
 
@@ -94,12 +107,14 @@ class _AppState extends ConsumerState<App> {
       if (!mounted) return;
       final initialConnectivity = ref.read(connectivityProvider);
       if (initialConnectivity == ConnectivityResult.none) {
-         _showNoConnectionDialog();
+        _showNoConnectionDialog();
       }
     });
 
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
-       if (!mounted) return;
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> results,
+    ) {
+      if (!mounted) return;
       ConnectivityResult currentResult;
       final notifier = ref.read(connectivityProvider.notifier);
       if (results.isNotEmpty) {
@@ -113,9 +128,14 @@ class _AppState extends ConsumerState<App> {
       if (currentResult == ConnectivityResult.none) {
         _showNoConnectionDialog();
       } else {
-        if (_showingNoConnectionDialog && _navigatorKey.currentState != null && _navigatorKey.currentContext != null) {
+        if (_showingNoConnectionDialog &&
+            _navigatorKey.currentState != null &&
+            _navigatorKey.currentContext != null) {
           if (ModalRoute.of(_navigatorKey.currentContext!)?.isCurrent != true) {
-             Navigator.of(_navigatorKey.currentContext!, rootNavigator: true).pop();
+            Navigator.of(
+              _navigatorKey.currentContext!,
+              rootNavigator: true,
+            ).pop();
           }
           _showingNoConnectionDialog = false;
         }
@@ -127,31 +147,38 @@ class _AppState extends ConsumerState<App> {
     if (_showingNoConnectionDialog || !mounted) return;
 
     if (_navigatorKey.currentContext == null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _showNoConnectionDialog());
-        return;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _showNoConnectionDialog(),
+      );
+      return;
     }
 
     _showingNoConnectionDialog = true;
     showDialog(
       context: _navigatorKey.currentContext!,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text(AppConstants.noConnectionDialogTitle),
-        content: const Text(AppConstants.noConnectionDialogContent),
-        backgroundColor: Colors.white,
-        icon: const Icon(Icons.signal_wifi_off, color: Colors.red, size: 36),
-        actions: [
-          TextButton(
-            onPressed: () {
-              _showingNoConnectionDialog = false;
-              Navigator.pop(context);
-            },
-            child: const Text('OK'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text(AppConstants.noConnectionDialogTitle),
+            content: const Text(AppConstants.noConnectionDialogContent),
+            backgroundColor: Colors.white,
+            icon: const Icon(
+              Icons.signal_wifi_off,
+              color: Colors.red,
+              size: 36,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  _showingNoConnectionDialog = false;
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
           ),
-        ],
-      ),
     ).then((_) {
-       _showingNoConnectionDialog = false;
+      _showingNoConnectionDialog = false;
     });
   }
 
@@ -166,14 +193,16 @@ class _AppState extends ConsumerState<App> {
         colorSchemeSeed: primaryColor,
         scaffoldBackgroundColor: const Color(0xFFF2F2F2),
         appBarTheme: const AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+          ),
           backgroundColor: Colors.transparent,
         ),
         textTheme: TextTheme(
           displayLarge: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary
+            color: Theme.of(context).colorScheme.primary,
           ),
           displayMedium: TextStyle(
             fontSize: 20,
@@ -187,34 +216,24 @@ class _AppState extends ConsumerState<App> {
           ),
           headlineMedium: const TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.bold
+            fontWeight: FontWeight.bold,
           ),
           headlineSmall: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.bold
+            fontWeight: FontWeight.bold,
           ),
           titleLarge: const TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.bold
+            fontWeight: FontWeight.bold,
           ),
-          bodyLarge: const TextStyle(
-            fontSize: 18
-          ),
-          bodyMedium: const TextStyle(
-            fontSize: 16
-          ),
-          labelLarge: const TextStyle(
-            fontSize: 14
-          ),
-          bodySmall: const TextStyle(
-            fontSize: 12
-          ),
-          labelSmall: const TextStyle(
-            fontSize: 10
-          )
-        )
+          bodyLarge: const TextStyle(fontSize: 18),
+          bodyMedium: const TextStyle(fontSize: 16),
+          labelLarge: const TextStyle(fontSize: 14),
+          bodySmall: const TextStyle(fontSize: 12),
+          labelSmall: const TextStyle(fontSize: 10),
+        ),
       ),
-      home: const Home()
+      home: const Home(),
     );
   }
 }
