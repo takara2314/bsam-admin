@@ -6,16 +6,18 @@ class BatteryAndAcc extends StatelessWidget {
     super.key,
     required this.batteryLevel,
     required this.acc,
+    this.statusText,
   });
 
   final int batteryLevel;
   final double acc;
+  final String? statusText;
 
   @override
   Widget build(BuildContext context) {
-    if (acc == 0.0) {
-      return const Text(
-        '手動設定',
+    if (statusText != null) {
+      return Text(
+        statusText!,
         style: TextStyle(fontSize: 12, color: Colors.grey),
       );
     }
