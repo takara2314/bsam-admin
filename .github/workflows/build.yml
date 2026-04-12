@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Create .env
         run: echo ${{ secrets.DOT_ENV_BASE64 }} | base64 --decode > .env
@@ -42,7 +42,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
