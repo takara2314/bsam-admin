@@ -98,6 +98,7 @@ class AthleteItem extends StatelessWidget {
               BatteryAndAcc(
                 batteryLevel: athlete.batteryLevel!,
                 acc: athlete.location!.acc!,
+                statusText: _athleteStatusText(athlete),
               ),
               Container(
                 margin: const EdgeInsets.only(top: 5),
@@ -146,6 +147,15 @@ class AthleteItem extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _athleteStatusText(Athlete athlete) {
+  final location = athlete.location;
+  if (location == null || location.acc == null || location.acc! <= 0.0) {
+    return '位置未取得';
+  }
+
+  return null;
 }
 
 class AthleteInfo extends StatelessWidget {

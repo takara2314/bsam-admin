@@ -81,6 +81,7 @@ class MarkItem extends StatelessWidget {
                 child: BatteryAndAcc(
                   batteryLevel: mark.batteryLevel!,
                   acc: mark.position!.acc!,
+                  statusText: mark.position!.isManual ? '手動設定' : null,
                 ),
               ),
               Visibility(

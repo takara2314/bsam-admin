@@ -20,6 +20,7 @@ import 'package:bsam_admin/pages/mark/app_bar.dart';
 import 'package:bsam_admin/pages/mark/debug_area.dart';
 import 'package:bsam_admin/pages/mark/map_area.dart';
 import 'package:bsam_admin/pages/mark/sending_area.dart';
+import 'package:bsam_admin/models/position_source.dart';
 import 'package:bsam_admin/utils/websocket_url_validator.dart';
 import 'package:bsam_admin/utils/reconnection_strategy.dart';
 
@@ -360,6 +361,8 @@ class _Mark extends ConsumerState<Mark> {
         'latitude': _lat,
         'longitude': _lng,
         'accuracy': _accuracy,
+        'position_source':
+            _manual ? PositionSource.manual.value : PositionSource.gps.value,
       });
 
       if (_disposed || !mounted) return;
